@@ -6,11 +6,11 @@
 
 - Static Vite/TypeScript application with real NASA GISS global annual temperature (1880-2025) and NSIDC Arctic September extent (1979-2026) data, attribution, access dates, units, terms, and processing metadata.
 - Vite production assets use `/earth-listens/`, and a GitHub Actions workflow builds and deploys `dist/` to Pages on pushes to `main`. Production preview verified page assets and both datasets at that path; the app has not been pushed or published.
-- Deterministic sonification mapping with unit tests; lazy Tone.js playback, limiter, mute, keyboard controls, status announcements, responsive chart, and two-period stereo compare.
+- Deterministic sonification mapping with unit tests; lazy Tone.js playback, limiter, mute, keyboard controls, live announcements, and two-period stereo compare.
 - Arctic scene uses the supplied 48-row NSIDC series, a computed 1981-2010 mean baseline of 6.413333 million square kilometers, and one-sided tension that rises as extent falls below that reference.
-- Visual refresh: brighter planetary artwork, a data-filled chart, clearer play controls, and a subtle playback meter that respects reduced-motion settings.
+- The interface is a playable instrument: proportional Arctic polar circles, annual warming stripes, a data-driven VU needle and year scrubber, moment buttons, drag-to-scrub, and a side-by-side stereo duel. The neutral editorial palette uses one hot accent; reduced-motion settings are respected.
 - README, AI-use record, one-minute mapping notes, and an honest 90-second demo outline.
-- Final validation: `npm run build`, `npm test` (14 tests), `npm run lint`, runtime `npm audit --omit=dev` (0 vulnerabilities), and `npm run preview` passed. Browser checks loaded both static datasets, confirmed the 2012 Arctic description is tense, verified scene switching, and confirmed the full Arctic scene name fits at 390px.
+- Final validation: `npm run build`, `npm test` (17 tests; all 14 original tests retained), `npm run lint`, and production preview passed. At `/earth-listens/`, HTML, JavaScript, CSS, and both datasets returned HTTP 200; browser checks confirmed scene switching, the data-driven 2012 low-extent moment, compare visuals, and the complete Arctic scene name at 390px. Desktop and mobile layouts were inspected at 1440px and 390px.
 
 ### What does not work yet
 
@@ -19,10 +19,12 @@
 - The three-scene criterion remains unmet; see `docs/KNOWN_ISSUES.md`.
 - The full npm audit reports 7 moderate development-tooling advisories; runtime-only audit is clean.
 - No human has listened to and approved the sound, independently verified all source terms, or reviewed event-specific AI/submission rules. No project software license has been selected.
+- GitHub Pages is configured but not published: the required push to `main` was intentionally not made. Repository Pages settings must use GitHub Actions before the workflow can deploy.
 
 ### Decisions and assumptions
 
 - Used vanilla TypeScript/Vite with no application framework or backend.
+- Applied the written editorial/instrument visual brief; no reference screenshot was available in the shared workspace.
 - Used GISTEMP's published 1951-1980 anomaly baseline (0 °C) and the NSIDC extent series' own 1981-2010 September mean (6.413333 million square kilometers) as its calm reference.
 - Disabled missing-data scenes instead of using estimates, repeated data, or sample values. Compare mode can now compare Arctic years, as well as temperature years.
 - The NSIDC Version 4 user guide states that `source_dataset` changes from NSIDC-0051 through 2024 to AMSR2/NSIDC-0803 from 2025, due to expected SSMIS access loss and observed degradation; this is surfaced in metadata and documentation.
@@ -33,12 +35,13 @@
 - [ ] Confirm the supplied NSIDC download directory, citation/terms, source transition, and attribution; verify current MODIS access and terms before adding NDVI.
 - [ ] Check the NASA Space Apps event's AI-use and submission rules and choose/verify a project software license.
 - [ ] On a fresh machine, run `npm ci`, `npm run build`, `npm test`, `npm run lint`, and `npm run preview`.
+- [ ] Enable GitHub Pages with the GitHub Actions source and verify the site after a push to `main`.
 - [ ] Review keyboard/screen-reader behavior and the demo timing with a human.
 
 ## Resume notes
-- Current task: record supplied NSIDC data URL — complete.
-- Half-done: no URL metadata/UI changes remain; Amazon NDVI and human verification remain follow-ups.
-- Exact next command for verification: `npm run build; npm test; npm run lint; npm run preview`
+- Current task: GitHub Pages deployment and instrument redesign — implementation and validation complete; local commit pending.
+- Half-done: commit the reviewed UI/docs changes, confirm a clean worktree, and stop the preview server. Amazon NDVI and human verification remain follow-ups.
+- Exact next command for verification: `git diff --check; npm test; npm run lint; npm run build`
 - Failing test: none.
 
 ## Task log
@@ -74,3 +77,5 @@
 - Arctic validation: `npm run data:sea-ice`, build, 14 tests, lint, and static preview passed. Browser verification confirmed temperature/Arctic switching, the 2012 low-extent announcement, the 1979 calm announcement, and the complete scene name at 390px.
 - NSIDC URL follow-up: recorded the supplied `https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/` exactly in the generator and JSON metadata, added a visible source-data link in the About panel, and updated README, AI-use, known issues, and progress notes. The generator, build, 14 tests, and lint passed; browser checks confirmed the About-panel link text and target match the supplied URL. No values or dependencies changed.
 - GitHub Pages deployment: set Vite's production base to `/earth-listens/` and added a `main`-push Actions workflow that installs dependencies, tests, lints, builds, and deploys `dist/`. Build output and production preview confirmed HTML, JS, CSS, and both dataset URLs return successfully under the repository path; Arctic scene switching loads its JSON. Build, all 14 tests, and lint pass.
+- Instrument redesign: replaced the dashboard-like layout with a bold editorial instrument, temperature stripes derived from annual anomalies, and polar ice circles whose areas are proportional to the JSON extent values with the 1981-2010 mean ring. Added a tension needle, keyboard-accessible year scrubber, pointer scrubbing, data-derived moment buttons, and side-by-side left/right comparison. Simplified About the data and moved processing and the unbundled vegetation note into collapsed technical details. No dependencies added; the absent screenshot was not available, so followed the written direction.
+- Instrument validation: `npm run build`, `npm test` (17; the original 14 still pass), and `npm run lint` passed. Production preview at `/earth-listens/` returned HTTP 200 for page, JS, CSS, and both datasets. Browser checks at 1440px and 390px verified the full scene label, data-derived Arctic record-low moment, comparison labels/visuals, visible exact NSIDC URL, and no console errors. No audio is started on load.

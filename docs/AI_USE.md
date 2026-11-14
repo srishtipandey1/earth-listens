@@ -17,6 +17,6 @@ The human supplied the project goal and acceptance criteria. No human code revie
 
 ## Data limits
 
-NASA GISS GISTEMP global annual temperature and NSIDC Sea Ice Index Version 4 Arctic September extent are bundled. Amazon regional NDVI remains unavailable because MODIS/Terra MOD13C2 data links required Earthdata authentication and suitable extraction. Source links, limits, and terms are documented in the README and `docs/KNOWN_ISSUES.md`.
+NASA GISS GISTEMP global annual temperature and NSIDC Sea Ice Index Version 4 Arctic September extent are bundled. A planned monthly vegetation series remains excluded because its source data requires authentication and no verified regional processing file is included. Source links, limits, and terms are documented in the README and `docs/KNOWN_ISSUES.md`.
 
 The team should confirm the exact current NASA dataset terms and attribution, plus the NASA Space Apps event's AI-use and submission rules, before publishing or submitting this project.

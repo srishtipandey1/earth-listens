@@ -49,15 +49,17 @@ The processor checks the September/Northern Hemisphere subset, validates 48 cons
 
 ## Use the instrument
 
-- Choose a year with the range slider. Arrow keys move one year at a time.
+- Choose a scene and scrub through years with the large range control; focus it and use Arrow keys to move one year at a time. Drag across the visual to scrub, too.
+- Use the scene's data-driven moment buttons to hear its first year, record extreme, or latest observation.
 - Press **Play** to begin; the browser audio context and Tone.js nodes are created only after this gesture.
-- Choose **Arctic sea ice — September extent** to hear lower extent as greater tension against the 1981-2010 mean.
+- Choose **Arctic sea ice — September extent** to hear lower extent as greater tension against the 1981-2010 mean. Its polar circle's area is proportional to the real September extent; a broken ring marks the dataset's 1981-2010 mean.
+- The temperature scene is drawn as one warming stripe per real annual anomaly. Its playhead follows the selected year.
 - Choose Slow, Normal, or Fast playback.
-- Turn on **Compare periods** to listen to the selected year and a second year on opposite stereo sides.
+- Turn on **Compare two years** to see two matched visuals side by side and hear the selected year in the left ear and the comparison year in the right.
 - **Mute** is always visible. Space toggles play/pause when focus is outside an interactive control; `M` toggles mute.
-- The live status announces the selected year, value, and a plain-language sound description. The chart is supportive, not required to understand the series.
+- The live status announces the selected year, value, and a plain-language sound description. The visuals support the sound; the range control and announcements expose the data without sight.
 
-The data panel links to the NASA source and displays citation and use information. The “How we used AI” and mapping buttons open the contents of the corresponding project documentation.
+The About panel gives a short explanation, dataset name, citation, and source links. Expand **Technical details** for processing and validation notes. The “How we used AI” and mapping buttons open the contents of the corresponding project documentation.
 
 ## Data sources and terms
 
