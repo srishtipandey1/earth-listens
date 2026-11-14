@@ -3,7 +3,7 @@ import sonificationNotes from '../docs/SONIFICATION.md?raw';
 import { AudioEngine } from './audio';
 import { loadDataset, type Dataset } from './data';
 import { averageForPeriod, createMappingOptions, mapSeriesPoint } from './sonification';
-import { iceCapRadius, temperatureStripeColor } from './visuals';
+import { iceCapEdgePath, iceCapRadius, iceFloeCrackPaths, temperatureStripeColor } from './visuals';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 
@@ -216,6 +216,7 @@ let compareIndex = 0;
 let playing = false;
 let muted = false;
 let timer: number | undefined;
+let pulseTimeout: number | undefined;
 let pointerScrubbing = false;
 let pointerSide = 'primary';
 let pointerBoundsElement: HTMLElement | null = null;
@@ -225,6 +226,14 @@ function formatValue(value: number): string {
     return value.toFixed(2);
   }
   return `${value > 0 ? '+' : ''}${value.toFixed(2)}°`;
+}
+
+function extentChangeFrom1979(initialExtent: number, currentExtent: number): { label: string; value: number } {
+  const change = initialExtent - currentExtent;
+  return {
+    label: change < 0 ? 'Area gained since 1979' : 'Area lost since 1979',
+    value: Math.abs(change),
+  };
 }
 
 function describePoint(index: number): string {
@@ -238,7 +247,8 @@ function describePoint(index: number): string {
 
   if (dataset.metadata.id === 'arctic-sea-ice') {
     const direction = point.value > mappingOptions.baseline ? 'above' : point.value < mappingOptions.baseline ? 'below' : 'at';
-    return `Year ${point.year}: September Northern Hemisphere sea-ice extent ${point.value.toFixed(2)} million square kilometers, ${direction} the 1981–2010 mean; sound is ${mood}.`;
+    const change = extentChangeFrom1979(dataset.values[0].value, point.value);
+    return `Year ${point.year}: September Northern Hemisphere sea-ice extent ${point.value.toFixed(2)} million square kilometers, ${direction} the 1981–2010 mean; ${change.label.toLowerCase()} ${change.value.toFixed(2)} million square kilometers; sound is ${mood}.`;
   }
 
   const direction = point.value > 0 ? 'above' : point.value < 0 ? 'below' : 'at';
@@ -287,27 +297,60 @@ function renderIcePanel(index: number, side: string, label: string): string {
   }
 
   const point = dataset.values[index];
-  const iceRadius = iceCapRadius(point.value, dataset.metadata.max, 148);
-  const baselineRadius = iceCapRadius(mappingOptions.baseline, dataset.metadata.max, 148);
-  const clipId = `polar-clip-${side}`;
+  const initialExtent = dataset.values[0].value;
+  const iceRadius = iceCapRadius(point.value, dataset.metadata.max, 140);
+  const baselineRadius = iceCapRadius(mappingOptions.baseline, dataset.metadata.max, 140);
+  const initialRadius = iceCapRadius(initialExtent, dataset.metadata.max, 140);
+  const declineRange = initialExtent - dataset.metadata.min;
+  const fray = declineRange > 0 ? Math.min(1, Math.max(0, (initialExtent - point.value) / declineRange)) : 0;
+  const edgePath = iceCapEdgePath(point.year, iceRadius, fray);
+  const crackPaths = iceFloeCrackPaths(point.year, 148);
+  const mapClipId = `polar-map-${side}`;
+  const iceClipId = `polar-clip-${side}`;
+  const surfaceId = `ice-surface-${side}`;
+  const change = extentChangeFrom1979(initialExtent, point.value);
 
   return `
     <section class="visual-side ice-side" data-scrub-side="${side}">
       <div class="visual-side-label"><span>${label}</span><strong>${point.year} · ${formatValue(point.value)} M km²</strong></div>
-      <svg class="polar-visual" viewBox="0 0 360 360" focusable="false">
-        <defs><clipPath id="${clipId}"><circle cx="180" cy="180" r="150"></circle></clipPath></defs>
+      <div class="ice-stage">
+        <svg class="polar-visual" viewBox="0 0 360 360" focusable="false">
+        <defs>
+          <clipPath id="${mapClipId}"><circle cx="180" cy="180" r="150"></circle></clipPath>
+          <clipPath id="${iceClipId}"><path d="${edgePath}"></path></clipPath>
+          <radialGradient id="${surfaceId}" cx="42%" cy="36%" r="72%">
+            <stop offset="0" stop-color="#f2fbfa"></stop>
+            <stop offset="0.76" stop-color="#d5edf0"></stop>
+            <stop offset="1" stop-color="#b9dce1"></stop>
+          </radialGradient>
+        </defs>
         <circle class="polar-ocean" cx="180" cy="180" r="158"></circle>
-        <g clip-path="url(#${clipId})">
+        <g clip-path="url(#${mapClipId})">
           <circle class="latitude-line" cx="180" cy="180" r="110"></circle>
           <circle class="latitude-line" cx="180" cy="180" r="70"></circle>
           <circle class="latitude-line" cx="180" cy="180" r="34"></circle>
           <path class="longitude-line" d="M30 180H330 M180 30V330 M74 74L286 286 M286 74L74 286"></path>
-          <circle class="ice-cap" cx="180" cy="180" r="${iceRadius.toFixed(2)}"></circle>
+        </g>
+        <path class="ice-cap" d="${edgePath}" fill="url(#${surfaceId})"></path>
+        <g class="ice-floe-texture" clip-path="url(#${iceClipId})">
+          <g transform="translate(180 180)">
+            ${crackPaths.map((path) => `<path d="${path}"></path>`).join('')}
+          </g>
+        </g>
+        <g clip-path="url(#${mapClipId})">
+          <circle class="ice-origin-outline" cx="180" cy="180" r="${initialRadius.toFixed(2)}"></circle>
           <circle class="ice-reference" cx="180" cy="180" r="${baselineRadius.toFixed(2)}"></circle>
         </g>
+        <path class="ice-cap-edge" d="${edgePath}"></path>
         <circle class="polar-edge" cx="180" cy="180" r="150"></circle>
         <text class="polar-label" x="180" y="22" text-anchor="middle">90°N</text>
       </svg>
+        <aside class="ice-change">
+          <span class="ice-change-label">${change.label}</span>
+          <strong class="ice-change-value">${change.value.toFixed(2)}</strong>
+          <span class="ice-change-units">million km²</span>
+        </aside>
+      </div>
     </section>
   `;
 }
@@ -325,6 +368,7 @@ function updateVisual(): void {
     : renderPanel(currentIndex, 'primary', leftLabel);
 
   dataVisual.classList.toggle('visual-duel', compareToggle.checked);
+  dataVisual.classList.toggle('visual-duel-ice', compareToggle.checked && isArctic);
   dataVisual.innerHTML = panels;
   dataVisual.setAttribute('aria-hidden', 'true');
 }
@@ -359,7 +403,7 @@ function updateReadout(announce: boolean): void {
 function updateDataPanel(data: Dataset): void {
   const isArctic = data.metadata.id === 'arctic-sea-ice';
   dataAbout.textContent = isArctic
-    ? 'Each mark is one real September observation of Northern Hemisphere sea ice. The polar circle scales by area to show extent; its fine ring marks this record’s 1981–2010 mean.'
+    ? 'Each mark is one real September observation of Northern Hemisphere sea ice. The floe texture is a deterministic illustration, not satellite imagery. The dashed ring marks the 1981–2010 mean; the ghost outline marks 1979.'
     : 'Each stripe is one real annual global temperature anomaly. Cooler and warmer colors show values below and above NASA’s 1951–1980 reference.';
   dataName.textContent = data.metadata.title;
   dataCitation.textContent = data.metadata.citation;
@@ -425,6 +469,19 @@ function stopPlayback(): void {
   updatePlaybackControl(false);
 }
 
+function pulseForNote(): void {
+  if (pulseTimeout !== undefined) {
+    window.clearTimeout(pulseTimeout);
+  }
+  instrument.classList.remove('note-hit');
+  void instrument.offsetWidth;
+  instrument.classList.add('note-hit');
+  pulseTimeout = window.setTimeout(() => {
+    instrument.classList.remove('note-hit');
+    pulseTimeout = undefined;
+  }, 320);
+}
+
 function playCurrent(): void {
   if (!dataset || !mappingOptions) {
     return;
@@ -441,6 +498,7 @@ function playCurrent(): void {
         pan: 0.78,
       });
     }
+    pulseForNote();
   } catch (error) {
     stopPlayback();
     errorBanner.hidden = false;
@@ -510,8 +568,6 @@ async function hearMoment(index: number): Promise<void> {
   try {
     await audio.start();
     playCurrent();
-    instrument.classList.add('note-hit');
-    window.setTimeout(() => instrument.classList.remove('note-hit'), 320);
   } catch (error) {
     errorBanner.hidden = false;
     errorBanner.textContent = error instanceof Error ? `Audio could not start: ${error.message}` : 'Audio could not start.';
@@ -595,8 +651,13 @@ function initializeDataset(data: Dataset): void {
   visualTitle.textContent = isArctic ? 'September ice extent' : 'A stripe for every year';
   visualLegend.replaceChildren();
   visualLegend.classList.toggle('temperature-legend', !isArctic);
+  visualLegend.classList.toggle('ice-legend', isArctic);
   if (isArctic) {
-    visualLegend.textContent = `Broken ring · 1981–2010 mean ${baseline.toFixed(2)} M km²`;
+    const averageKey = document.createElement('span');
+    averageKey.textContent = 'Dashed ring = 1981–2010 average';
+    const originKey = document.createElement('span');
+    originKey.textContent = 'Ghost outline = 1979 extent';
+    visualLegend.append(averageKey, document.createTextNode(' '), originKey);
   } else {
     for (const [label, colorClass] of [['Blue · below reference', 'legend-swatch-blue'], ['Red · above reference', 'legend-swatch-red']]) {
       const item = document.createElement('span');
