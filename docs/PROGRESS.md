@@ -1,9 +1,40 @@
 # Progress
 
+## Final summary
+
+### What works
+
+- Static Vite/TypeScript application with one real, bundled NASA GISS global annual temperature series (1880-2025), attribution, access date, units, use guidance, and processing metadata.
+- Deterministic sonification mapping with unit tests; lazy Tone.js playback, limiter, mute, keyboard controls, status announcements, responsive chart, and two-period stereo compare.
+- README, AI-use record, one-minute mapping notes, and an honest 90-second demo outline.
+- Final validation: `npm run build`, `npm test` (10 tests), `npm run lint`, runtime `npm audit --omit=dev` (0 vulnerabilities), and `npm run preview` passed. Browser checks loaded the static dataset, found no console errors/warnings, confirmed no horizontal overflow at desktop/mobile sizes, and confirmed Tone was not loaded before a gesture.
+
+### What does not work yet
+
+- Arctic sea-ice and Amazon NDVI scenes are not bundled or playable. Task 2 remains unchecked: only the GISTEMP retrieval/processing script was written. The NSIDC pages timed out and MODIS raw data requires Earthdata authorization and HDF processing.
+- The three-scene criterion and Arctic-first portion of the demo criterion are unmet; see `docs/KNOWN_ISSUES.md`.
+- The full npm audit reports 7 moderate development-tooling advisories; runtime-only audit is clean.
+- No human has listened to and approved the sound, independently verified all source terms, or reviewed event-specific AI/submission rules. No project software license has been selected.
+
+### Decisions and assumptions
+
+- Used vanilla TypeScript/Vite with no application framework or backend.
+- Used GISTEMP's published 1951-1980 anomaly baseline (0 °C) and the bundled series' observed min/max and max annual change for mapping.
+- Disabled missing-data scenes instead of using estimates, repeated data, or sample values. Compare mode therefore compares two years from the one real series.
+- NASA source pages were the authority for data descriptions and general use guidance; where a source was inaccessible, no license or values were inferred.
+
+### Morning verification checklist
+
+- [ ] Listen to the available scene and stereo comparison; check loudness, timbre, and whether baseline/extreme years sound as intended.
+- [ ] Confirm NASA GISS citation/terms and attribution; verify current NSIDC and MODIS access, dataset licenses/terms, and attribution before enabling the other scenes.
+- [ ] Check the NASA Space Apps event's AI-use and submission rules and choose/verify a project software license.
+- [ ] On a fresh machine, run `npm ci`, `npm run build`, `npm test`, `npm run lint`, and `npm run preview`.
+- [ ] Review keyboard/screen-reader behavior and the demo timing with a human.
+
 ## Resume notes
-- Current task: 10 of 10 — final build, test, lint, preview, and honest handoff.
-- Half-done: all code/docs are in place; rerun final checks, preview static output, inspect git status, and write final summary with morning checklist.
-- Next command: `npm run build; npm test; npm run lint; npm run preview`
+- Current task: 10 of 10 — complete.
+- Half-done: no further implementation is in progress; the missing scene data and human sign-offs are the known follow-ups above.
+- Exact next command for morning verification: `npm ci; npm run build; npm test; npm run lint; npm run preview`
 - Failing test: none.
 
 ## Task log

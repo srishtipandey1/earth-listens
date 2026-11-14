@@ -7,3 +7,7 @@
 - **Impact:** only global temperature currently has real bundled data. Arctic sea ice and vegetation must remain unavailable until their source data can be accessed and processed. Do not represent repeated temperature data, image-derived estimates, or generated values as those scenes.
 - **Human follow-up:** verify NSIDC access and terms, and provide NASA Earthdata-authorized access plus an HDF4-capable extraction tool if a regional MODIS NDVI bundle is still required.
 - **Acceptance impact:** the three-scene acceptance criterion is not met. The 90-second demo document starts with silence, but cannot move into the Arctic scene; it transparently explains the block and demonstrates the available temperature scene instead.
+
+## Development dependency advisories
+
+The full `npm audit` reports 7 moderate advisories in development dependencies (`typescript-eslint` and transitive ESLint tooling). `npm audit --omit=dev` reports 0 vulnerabilities. npm's proposed fix changes the TypeScript ESLint version across a major-version boundary, so it was not applied without compatibility testing.
