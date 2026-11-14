@@ -1,9 +1,9 @@
 # Progress
 
 ## Resume notes
-- Current task: 3 of 10 — implement data loading, normalization, sonification mapping, and tests.
-- Half-done: only the verified global temperature series is available to the app; the other two sources are listed in known issues.
-- Next command: inspect current app files, then implement the typed data loader and pure mapping functions with focused tests.
+- Current task: 4 of 10 — implement the Tone.js audio engine.
+- Half-done: mapping and data validation are complete; the audio engine and UI integration remain.
+- Next command: add a lazy audio engine that constructs Tone nodes only after the first playback gesture, and test its lifecycle where feasible.
 - Failing test: none.
 
 ## Task log
@@ -16,3 +16,5 @@
 - Task 2 complete with source-access limits: verified the NASA GISS GISTEMP v4 CSV page and data link, downloaded the annual global series, and wrote `public/data/global-temperature.json` with source, data URL, access date, units, use terms, citation, and processing steps. The Node script uses the system curl executable because Node's direct HTTPS request is blocked in this environment.
 - Task 2 sources not acquired: the NSIDC host timed out from both web and command-line access, so no Arctic values or source license terms were verified or included. NASA's MOD13C2.061 monthly product metadata is verified and NASA ESDIS use/citation guidance is documented, but its CMR data link is protected and redirects to Earthdata login; no Earthdata credentials or HDF processor are available here. These are recorded in `docs/KNOWN_ISSUES.md`; no substitute or synthetic values were created.
 - Dependency changes: no task 2 dependencies added. A generated TypeScript build-info file from task 1 is now ignored and will be removed from version control.
+- Task 3 complete: added runtime dataset validation/loading, bounded normalization, pentatonic pitch mapping, baseline tension, change-driven rhythm/texture, and `docs/SONIFICATION.md`.
+- Task 3 validation: `npm run build`, `npm test` (8 tests), and `npm run lint` passed.
