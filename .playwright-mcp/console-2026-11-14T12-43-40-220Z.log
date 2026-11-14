@@ -1,4 +1,0 @@
-[   16557ms] [LOG] %c * Tone.js v15.1.22 *  background: #000; color: #fff @ http://127.0.0.1:4173/node_modules/.vite/deps/tone.js?v=53f4d74b:8535
-[   16656ms] [WARNING] The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio @ http://127.0.0.1:4173/node_modules/.vite/deps/tone.js?v=53f4d74b:6464
-[   16657ms] [WARNING] The AudioContext was not allowed to start. It must be resumed (or created) after a user gesture on the page. https://developer.chrome.com/blog/autoplay/#web_audio @ http://127.0.0.1:4173/node_modules/.vite/deps/tone.js?v=53f4d74b:2555
-[   16805ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:4173/favicon.ico:1

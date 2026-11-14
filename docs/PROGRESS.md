@@ -1,9 +1,9 @@
 # Progress
 
 ## Resume notes
-- Current task: 6 of 10 — accessibility review and keyboard/screen-reader checks.
-- Half-done: main UI and one bundled scene are implemented; compare mode is present and awaits formal validation.
-- Next command: inspect and exercise keyboard controls, focus visibility, live announcements, and reduced-motion behavior.
+- Current task: 7 of 10 — validate compare mode with stereo separation.
+- Half-done: compare controls and audio channels are implemented; verify a comparison session and document its scope.
+- Next command: exercise compare mode with two selected years, confirm the left/right panners are used, then run all checks.
 - Failing test: none.
 
 ## Task log
@@ -22,3 +22,5 @@
 - Task 4 validation: `npm run build`, `npm test` (9 tests, including the gesture gate), and `npm run lint` passed. A type mismatch from Tone's frequency wrapper was fixed by passing converted Hz values.
 - Task 5 complete for the available dataset: added the scene picker with unavailable scenes disabled and labeled, year slider, play/pause, playback speed, synchronized chart, data citation panel, and in-app AI/mapping notes. The UI shows unavailable source details rather than substituting data.
 - Task 5 validation: build, tests (9), lint passed. Browser verification confirmed the bundled 1880-2025 series renders, compare controls appear, playback starts only after clicking Play, and the initial page has no browser warnings/errors. Tone was changed to a dynamic import after the Play gesture to prevent an AudioContext from being created on page load.
+- Task 6 complete: verified accessible names/roles in the browser accessibility snapshot, native slider ArrowRight stepping and live announcements, Space play/pause and M mute shortcuts, visible focus indication, and `prefers-reduced-motion` CSS behavior. No axe or extra browser dependency was added; the live Playwright browser checks covered the interaction paths.
+- Task 6 validation: build, tests (9), lint passed. Browser checks showed `aria-live="polite"`, reduced-motion transition duration of 0.00001s, visible focus outline, and no console warnings/errors after a fresh load.

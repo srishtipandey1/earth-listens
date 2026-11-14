@@ -5,7 +5,7 @@
 - [x] 3. Core: data loader, normalization, and the sonification mapping functions with unit tests. Write docs/SONIFICATION.md.
 - [x] 4. Audio engine with Tone.js: voices, scale handling, dissonance control, noise texture, stereo panning, mute, master limiter, start only after user gesture.
 - [x] 5. UI: scene picker, slider, play/pause, speed, visual layer synchronized with the sound, About panel with attribution.
-- [ ] 6. Accessibility: keyboard map, ARIA, live region descriptions, focus styles, reduced motion. Test with automated checks (for example axe via vitest or playwright) if feasible.
+- [x] 6. Accessibility: keyboard map, ARIA, live region descriptions, focus styles, reduced motion. Test with automated checks (for example axe via vitest or playwright) if feasible.
 - [ ] 7. Compare mode with stereo separation.
 - [ ] 8. Polish: responsive layout, loading and error states, empty-data handling.
 - [ ] 9. Docs: README, docs/AI_USE.md (fill it in accurately), docs/DEMO.md.
