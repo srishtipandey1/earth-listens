@@ -1,9 +1,9 @@
 # Progress
 
 ## Resume notes
-- Current task: 8 of 10 — polish responsive layout and loading/error states.
-- Half-done: the app is polished for the primary dataset; verify mobile layout and static preview paths.
-- Next command: run `npm run preview` and verify the built app, data fetch, and in-app documentation links at desktop and mobile widths.
+- Current task: 9 of 10 — complete README, AI-use disclosure, and demo script.
+- Half-done: README, AI-use, and demo documentation are still starter/absent.
+- Next command: write only claims supported by the checked dataset and browser/test evidence; include clear caveats for unavailable scenes and the Arctic opening requirement.
 - Failing test: none.
 
 ## Task log
@@ -26,3 +26,5 @@
 - Task 6 validation: build, tests (9), lint passed. Browser checks showed `aria-live="polite"`, reduced-motion transition duration of 0.00001s, visible focus outline, and no console warnings/errors after a fresh load.
 - Task 7 complete: compare mode selects two years and schedules their mappings on separate Tone channels at -0.78 (left) and +0.78 (right); it does not pretend the blocked scenes are available.
 - Task 7 validation: added a focused audio-engine test for opposing pan values. Build, tests (10), and lint passed; browser playback with compare enabled produced no console errors or warnings.
+- Task 8 complete: responsive layout, disabled/unavailable scene state, loading status, HTTP/schema error banner, and empty-data validation are in place. Corrected a 390px mobile horizontal overflow caused by the scene select's intrinsic width.
+- Task 8 validation: build, tests (10), and lint passed. Static `npm run preview` loaded the actual dataset and embedded docs; desktop and 390px layouts had no horizontal overflow, and preview console had no errors or warnings.
