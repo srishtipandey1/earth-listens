@@ -1,0 +1,43 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #eef4ed;
+  background: #07131a;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 75% 20%, rgb(32 98 99 / 24%), transparent 48%),
+    #07131a;
+}
+
+.shell {
+  width: min(100% - 3rem, 72rem);
+  margin-inline: auto;
+  padding-block: 4rem;
+}
+
+.eyebrow {
+  color: #9cbdad;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+}
+
+h1 {
+  margin-block: 1rem 0;
+  font-size: clamp(3rem, 10vw, 7rem);
+  letter-spacing: -0.07em;
+}
+
+.intro {
+  color: #b6c7bf;
+  font-size: 1.25rem;
+}
