@@ -44,8 +44,8 @@
 - [ ] Review keyboard/screen-reader behavior and the demo timing with a human.
 
 ## Resume notes
-- Current task: finish and commit the GitHub Pages workflow fix; no push.
-- Half-done: workflow and clean-build checks are complete. A repository admin must set Pages' source to GitHub Actions and rerun after this local commit.
+- Current task: none; the GitHub Pages workflow fix is committed locally as `2bc471f`.
+- Half-done: a repository admin must set Pages' source to GitHub Actions and then push this local commit or rerun the workflow.
 - Exact next command: `git status --short`
 - Failing test: none.
 
