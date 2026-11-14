@@ -5,13 +5,14 @@
 ### What works
 
 - Static Vite/TypeScript application with real NASA GISS global annual temperature (1880-2025) and NSIDC Arctic September extent (1979-2026) data, attribution, access dates, units, terms, and processing metadata.
-- Vite production assets use `/earth-listens/`; the workflow builds, tests, lints, and uploads `dist/` on pushes to `main`. The most recent GitHub Actions runs passed build and artifact upload but failed when creating the Pages deployment: GitHub returned 404 because Pages is not enabled/configured for this repository. The workflow now includes `configure-pages`, but repository settings still need a one-time change.
+- Vite production assets use `/earth-listens/`; the workflow builds, tests, lints, and uploads `dist/` on pushes to `main`. The live site returned the instrument and both datasets during the README screenshot check on 2026-11-14; this task did not trigger a new Actions run.
 - Deterministic sonification mapping with unit tests; lazy Tone.js playback, limiter, mute, keyboard controls, live announcements, and two-period stereo compare.
 - The Earth song of your life validates the birth year against the selected scene, plays its actual observations continuously through the latest year, updates the selected-year visual, and throttles live progress to every five years plus start/end.
 - Save my song records the post-limiter output through MediaRecorder and downloads only a non-empty completed recording. Chromium produced a 9,338-byte WebM/Opus file for 2024-2025; it played through to completion and decoded as 0.66 seconds of stereo audio at 48 kHz.
 - Arctic scene uses the supplied 48-row NSIDC series, a computed 1981-2010 mean baseline of 6.413333 million square kilometers, and one-sided tension that rises as extent falls below that reference.
 - The instrument has proportional Arctic polar visuals, annual warming stripes, a data-driven VU needle and year scrubber, moment buttons, drag-to-scrub, and a side-by-side stereo duel. Reduced-motion settings are respected.
 - README, AI-use record, one-minute mapping notes, and an updated 90-second demo outline document the life-song and recording behavior.
+- The judge-focused README now includes the live link, three Playwright screenshots captured at a 1440px viewport, complete dataset details and citations, mapping, accessibility, limits, and truthful AI-use notes. The rendered Markdown preview loaded all three images.
 - Final validation: `npm run build`, `npm test` (21 tests), and `npm run lint` passed. Production preview was inspected at 1440px and 390px with no horizontal overflow; browser checks confirmed the data-derived year range, live announcements at the start/five-year/final cadence, completed recording download, and playback through to completion.
 
 ### What does not work yet
@@ -22,7 +23,7 @@
 - The full npm audit reports 7 moderate development-tooling advisories; runtime-only audit is clean.
 - No human has listened to and approved the sound, independently verified all source terms, or reviewed event-specific AI/submission rules. No project software license has been selected.
 - Recording format and MediaRecorder availability vary by browser; only Chromium's WebM/Opus output was verified here.
-- GitHub Pages is not yet enabled/configured in repository settings. Set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**, then rerun the workflow.
+- The previous GitHub Actions deployment attempt failed because Pages was not enabled at that time. The live URL was reachable during this README task, but the workflow was not rerun.
 
 ### Decisions and assumptions
 
@@ -40,12 +41,12 @@
 - [ ] Confirm the supplied NSIDC download directory, citation/terms, source transition, and attribution; verify current MODIS access and terms before adding NDVI.
 - [ ] Check the NASA Space Apps event's AI-use and submission rules and choose/verify a project software license.
 - [ ] On a fresh machine, run `npm ci`, `npm run build`, `npm test`, `npm run lint`, and `npm run preview`.
-- [ ] Enable GitHub Pages with the GitHub Actions source and verify the site after a push to `main`.
+- [ ] Confirm the latest GitHub Actions deployment is green; the live site was reachable during this review.
 - [ ] Review keyboard/screen-reader behavior and the demo timing with a human.
 
 ## Resume notes
-- Current task: none; the GitHub Pages workflow fix is committed locally as `2bc471f`.
-- Half-done: a repository admin must set Pages' source to GitHub Actions and then push this local commit or rerun the workflow.
+- Current task: none; the judge-focused README and screenshots are complete.
+- Half-done: none.
 - Exact next command: `git status --short`
 - Failing test: none.
 
@@ -93,4 +94,6 @@
 - Life song validation: build, lint, and 21 tests pass. Production preview at `/earth-listens/` was checked at 1440px and 390px without horizontal overflow. Browser checks verified scene-specific year bounds, 2020-to-latest playback with announcements at start and completion, and a 9,338-byte WebM/Opus download that decoded and played to completion. The test file and screenshots were removed; no browser console errors or warnings were observed.
 - Pages deployment diagnosis: GitHub Actions run 43620646409 passed checkout, Node setup, `npm ci`, tests, lint, build, and `upload-pages-artifact`; `deploy-pages` then failed with HTTP 404 and the explicit message to ensure GitHub Pages is enabled. The workflow lacked `actions/configure-pages`; added the official `configure-pages@v5` step, retained `upload-pages-artifact@v3`, upgraded to official `deploy-pages@v5`, and set the build/deploy permissions explicitly. Node 22.12 in the workflow satisfies Vite 8's `^20.19.0 || >=22.12.0` requirement; `dist` is the correct upload directory and Vite's `/earth-listens/` base is intact.
 - Clean-install verification: the first `npm ci` in the primary working tree hit Windows `EPERM` unlinking the native Rolldown binding while the existing Vite dev server was running. To avoid interrupting that process, created a detached temporary worktree; there, `npm ci`, `npm run build`, `npm test` (21), and `npm run lint` all passed. Production preview returned 200 for `/earth-listens/` JS/CSS, the lazy Tone chunk, and both dataset JSON files (146 temperature rows, 48 Arctic rows).
-- GitHub Pages settings remain a manual step: `configure-pages` uses the workflow token and will report clearly if Pages has not been enabled; automatic enablement needs a separate PAT/GitHub App token, so no secret or extra token was added.
+- README judge pass: rewrote the README in the requested 14-section order, added full data metadata/citations and truthful limitations, and captured the Arctic, temperature, and life-song screenshots from the live site at 1440px using Playwright. A local Markdown render showed all three images and the internal documentation links.
+- README validation: the primary working tree's `npm run build`, `npm test`, and `npm run lint` could not start because local dependency binaries were unavailable; `npm ci` hit Windows EPERM unlinking the locked Rolldown binding. In a detached temporary worktree, a clean `npm ci`, build, 21 tests, and lint all passed. No dependencies or application code changed.
+- The README's local image and documentation links were checked in the rendered preview; the public site loaded the app and data during screenshot capture. No new Pages workflow run was triggered.

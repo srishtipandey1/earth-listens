@@ -1,112 +1,148 @@
 # Earth Listens
 
-Earth Listens is a small, static sonification experiment for NASA Earth data. Move through the annual global temperature anomaly record and hear the value, its distance from the reference baseline, and its year-to-year change as pitch, tension, rhythm, and texture.
+Earth Listens is a playable instrument for exploring real NASA GISS temperature and NSIDC Arctic sea-ice records, one year at a time.
 
-This build contains **two playable scenes with real data**: NASA GISS GISTEMP v4 global annual temperature anomalies (1880-2025) and the NSIDC Sea Ice Index Version 4 Northern Hemisphere September sea-ice extent series (1979-2026). Amazon vegetation remains unavailable because its source data could not be acquired and verified in this environment. No substitute or synthetic values are used.
+**[Open the live instrument](https://srishtipandey1.github.io/earth-listens/)**
+
+## Hear it in 30 seconds
+
+1. Open the live site. It starts in silence.
+2. Choose **Arctic sea ice — September extent**, then press **Hear the record low (2012)** to hear that observation.
+3. Enter a birth year and press **Play my Earth song** to follow the selected record through its latest year.
+
+Sound starts only after a click or key press.
+
+## Screenshots
+
+These are real screenshots captured from the site at a 1440px viewport.
+
+### Arctic sea ice
+
+![Arctic sea-ice instrument showing the 2012 September extent, polar ice visual, 1981–2010 mean ring, 1979 outline, and area lost since 1979.](docs/images/arctic-scene.png)
+
+### Global temperature
+
+![Global temperature instrument with annual warming stripes from 1880 to 2025 and the 2024 value highlighted.](docs/images/temperature-stripes.png)
+
+### Earth song of your life
+
+![Life-song controls showing a validated 1952 example birth year, Play and Save controls, and the browser's WebM audio format.](docs/images/earth-song-control.png)
+
+## Why it matters
+
+Climate records are often presented as tables and charts. Earth Listens adds a year-by-year sound so people can explore the direction and pace of change by listening, while keeping the observed value and source visible.
+
+The instrument also provides keyboard controls, spoken status updates, and labels for people who use screen readers. These features are intended to support blind and low-vision learners, but have not yet been tested with assistive-technology users.
+
+## Features
+
+- Two data-backed scenes: NASA GISS annual global temperature anomalies and NSIDC Northern Hemisphere September sea-ice extent.
+- Year slider and drag-to-scrub visual, with data-derived moment buttons for the first, extreme, and latest observations.
+- Compare two years in a left-ear/right-ear stereo presentation.
+- **Earth song of your life** plays from a valid birth year through the selected scene's latest year; **Save my song** downloads a completed browser recording.
+- Keyboard operation, screen-reader labels and live announcements, visible focus, reduced-motion support, and no sound before a user gesture.
+- Temperature stripes and a proportional Arctic ice visual that follow the selected year and playback.
+
+## How the data becomes sound
+
+| Sound part | Data signal | Mapping |
+|---|---|---|
+| Pitch | Normalized value within the selected dataset's range | Moves through three octaves of a C-D-E-G-A pentatonic scale. |
+| Tension | Distance from the scene's reference | Temperature uses the 0 °C anomaly baseline; Arctic tension rises as extent falls below its 1981–2010 mean. |
+| Rhythm | Absolute year-to-year change relative to the largest change in that dataset | Sets 1–8 note pulses per year. |
+| Texture | The same relative year-to-year change | Scales a soft noise layer from silence to a gain of 0.18. |
+
+The reference years sound calmer: temperature is measured against its published zero-anomaly baseline, and Arctic extent at or above its 1981–2010 mean has no added tension. Larger departures and faster changes add tension, pulses, and texture; the mapping is an educational interpretation, not a scientific measurement of emotion.
+
+See [docs/SONIFICATION.md](docs/SONIFICATION.md) for the full mapping and tests.
+
+## Data
+
+### NASA GISS global temperature anomaly
+
+- **Measures:** Annual global-mean temperature anomaly relative to NASA GISS's 1951–1980 mean.
+- **Years:** 1880–2025 (146 annual observations).
+- **Units:** Degrees Celsius relative to the 1951–1980 mean.
+- **Official source:** [NASA GISTEMP v4 data page](https://data.giss.nasa.gov/gistemp/data_v4.html); [source CSV](https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv).
+- **Accessed:** 2026-11-14.
+- **Citation:** GISTEMP Team. *GISS Surface Temperature Analysis (GISTEMP), version 4.* NASA Goddard Institute for Space Studies. Accessed 2026-11-14.
+- **Processing:** The annual `J-D` column is used; unavailable annual rows are skipped and finite values are kept in year order. The bundled values are not AI-generated.
+- **Use terms:** The GISTEMP page asks users to cite and credit NASA GISS/GISTEMP; it states no dataset-specific restriction. See [NASA ESDIS data-use guidance](https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance).
+
+### NSIDC Arctic September sea-ice extent
+
+- **Measures:** September sea-ice extent in the Northern Hemisphere.
+- **Years:** 1979–2026 (48 consecutive annual observations).
+- **Units:** Million square kilometers.
+- **Official source:** [NSIDC Sea Ice Index, Version 4 (G02135)](https://nsidc.org/data/g02135/versions/4); the supplied CSV's [Northern Hemisphere monthly data directory](https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/).
+- **Accessed:** 2026-11-14.
+- **Citation:** Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., Windnagel, A. K. & Stafford, T. (2025). *Sea Ice Index* (G02135, Version 4). Boulder, Colorado USA. National Snow and Ice Data Center. [https://doi.org/10.7265/a98x-0f50](https://doi.org/10.7265/a98x-0f50). Accessed 2026-11-14.
+- **Processing:** The supplied CSV is filtered to September (`mo=9`) and Northern Hemisphere (`region=N`); its `extent` values are preserved without interpolation or rounding. The processor validates all 48 consecutive years.
+- **Use terms:** NSIDC requires citation; see its [data-use and citation policy](https://nsidc.org/about/data-use-and-copyright).
+
+The NSIDC Version 4 user guide says `source_dataset` identifies the input product: NSIDC-0051 through 2024, then NSIDC-0803 (AMSR2) from 2025. It attributes the change to expected loss of SSMIS access and observed SSMIS degradation; pre-2025 Version 4 values are copies of Version 3. This is a documented change in input product, not an interpolation of the annual extent values. See the [official Version 4 user guide](https://nsidc.org/sites/default/files/documents/user-guide/g02135-v004-userguide.pdf).
+
+## Accessibility
+
+The app has labeled native controls, keyboard-operable playback and year selection, visible focus styling, and a polite live region that announces the selected year, value, and a plain-language description. During an Earth song, progress is announced at the start, every five years, and at the end. The `prefers-reduced-motion` setting reduces animation, and audio is not created or played until a user gesture.
+
+No testing with blind or low-vision participants or real assistive-technology users has been completed.
+
+## Challenge fit
+
+NASA Space Apps Challenge's **The Earth Information Jukebox** asks teams to turn Earth information into sound. Earth Listens makes two annual Earth records playable: people can move through time, hear changes, and compare years while the underlying values and citations remain available.
 
 ## Run locally
 
-Requirements: Node.js 22.12 or newer and `curl` on `PATH` if you want to refresh the data.
+Use Node.js 22.12 or newer. `package.json` defines the project scripts but does not declare an `engines` range; this Node version meets Vite 8's supported requirement and matches the GitHub Pages workflow.
 
 ```sh
 npm ci
 npm run dev
-```
-
-The static production build can be checked with:
-
-```sh
-npm run build
-npm run preview
-```
-
-Other checks:
-
-```sh
 npm test
+npm run build
 npm run lint
 ```
 
-## Deploy to GitHub Pages
+The static production site is built into `dist/`; run `npm run preview` to check that build locally. For GitHub Pages, the Vite base path is `/earth-listens/`.
 
-The GitHub Actions workflow deploys `dist/` to Pages after each push to `main`. In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. The Vite base path is `/earth-listens/` for this repository; use that path when opening the published site.
+## Project structure
 
-To re-download and process the GISTEMP CSV into `public/data/global-temperature.json`:
-
-```sh
-npm run data:fetch
+```text
+.
+├── .github/workflows/deploy.yml
+├── docs/
+│   ├── images/                 # README screenshots
+│   ├── AI_USE.md
+│   ├── CONTEXT.md
+│   ├── DEMO.md
+│   ├── KNOWN_ISSUES.md
+│   ├── PROGRESS.md
+│   ├── SONIFICATION.md
+│   └── TASKS.md
+├── public/data/                # Bundled dataset JSON and metadata
+├── scripts/                    # Dataset download and processing
+├── src/                        # App, visuals, audio, mapping, and tests
+├── index.html
+├── package.json
+└── vite.config.ts
 ```
 
-The GISTEMP data refresh script uses the system `curl` executable. It records source, data URL, access date, units, NASA use guidance, citation, and processing steps in the generated JSON.
+## Limitations and honesty
 
-The Arctic data file was supplied locally as `data-raw/N_09_extent_v4.0.csv`. Validate it and regenerate the bundled JSON with:
+- There is no vegetation scene. The MODIS data links require Earthdata authentication here, and a verified regional processing file is not available; no substitute data is used.
+- The Arctic CSV was supplied by a human. The source URL is recorded, but the processor cannot independently confirm where the local file was downloaded from.
+- Recording was verified only in Chromium; browser formats and `MediaRecorder` support can differ. Sound quality remains a human judgment, and no human listening review has been completed.
+- No real assistive-technology user testing, independent dataset validation, or final event-rule review has been completed.
+- `npm audit` reports seven moderate advisories in development dependencies; the runtime-only audit reported none. See [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) for details.
+- A project software license has not been selected. NASA/NSIDC data terms do not supply a license for this code.
 
-```sh
-npm run data:sea-ice
-```
+## How we used AI
 
-The processor checks the September/Northern Hemisphere subset, validates 48 consecutive years (1979-2026) and the documented 2025 input-source transition, and copies the `extent` numbers without interpolation or rounding. The supplied download URL is the [NSIDC Northern Hemisphere monthly data directory](https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/); the exact URL is recorded in the JSON metadata and shown in the About the data panel.
+The project used an AI assistant with Copilot SDK in VS Code to scaffold and implement the app, data-processing scripts, tests, and documentation, and to run automated and Chromium browser checks. A human supplied the project concept and acceptance criteria, selected and downloaded the Arctic CSV, and provided its source URL. Human listening, independent review, data-term confirmation, and checking the event's AI-use and submission rules remain outstanding. No synthetic or AI-generated observations were used. See [docs/AI_USE.md](docs/AI_USE.md).
 
-## Use the instrument
+## Team
 
-- Choose a scene and scrub through years with the large range control; focus it and use Arrow keys to move one year at a time. Drag across the visual to scrub, too.
-- Use the scene's data-driven moment buttons to hear its first year, record extreme, or latest observation.
-- Press **Play** to begin; the browser audio context and Tone.js nodes are created only after this gesture.
-- Choose **Arctic sea ice — September extent** to hear lower extent as greater tension against the 1981-2010 mean. Its polar circle's area is proportional to the real September extent; a broken ring marks the dataset's 1981-2010 mean.
-- The temperature scene is drawn as one warming stripe per real annual anomaly. Its playhead follows the selected year.
-- Choose Slow, Normal, or Fast playback.
-- Turn on **Compare two years** to see two matched visuals side by side and hear the selected year in the left ear and the comparison year in the right.
-- Enter a birth year in **Earth song of your life** and play the selected scene continuously from that observation to its latest year. The example year comes from the active dataset; the year and value advance with the visual, and the live announcement updates every five years.
-- Choose **Save my song** to record that same run and download it when it reaches the latest year. The interface names the recording format supported by the browser (WebM/Opus in the browser used for verification). If playback is interrupted, no partial file is downloaded.
-- **Mute** is always visible. Space toggles play/pause when focus is outside an interactive control; `M` toggles mute.
-- The live status announces the selected year, value, and a plain-language sound description. The visuals support the sound; the range control and announcements expose the data without sight.
-
-The life-song controls accept only whole years present in the selected scene. Recording uses the browser's `MediaRecorder` and a stream tapped from the existing post-limiter audio; it does not request microphone access. Start and save actions remain explicit user gestures.
-
-The About panel gives a short explanation, dataset name, citation, and source links. Expand **Technical details** for processing and validation notes. The “How we used AI” and mapping buttons open the contents of the corresponding project documentation.
-
-## Data sources and terms
-
-### Bundled: Global temperature anomaly
-
-- Source: [NASA GISS Surface Temperature Analysis (GISTEMP v4)](https://data.giss.nasa.gov/gistemp/)
-- CSV: [Global-mean monthly, seasonal, and annual means](https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv)
-- Accessed: 2026-11-14.
-- Units: degrees Celsius relative to NASA GISS's 1951-1980 mean.
-- Use terms: the GISTEMP page asks users to cite the dataset and credit NASA GISS/GISTEMP. No dataset-specific restriction is stated there. NASA ESDIS [data-use guidance](https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance) describes NASA Earth science data as generally open and requests acknowledgment/citation; users must check any restrictions attached to a specific dataset.
-- Processing: select the CSV's annual `J-D` column, omit nonnumeric/incomplete rows, and sort observations by year. The source values are not AI-generated.
-
-### Bundled: Arctic sea ice
-
-- Source: [NSIDC Sea Ice Index, Version 4 (G02135)](https://nsidc.org/data/g02135/versions/4)
-- Download URL supplied by the human: [NSIDC Northern Hemisphere monthly data directory](https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/)
-- User guide: [Sea Ice Index, Version 4 User Guide](https://nsidc.org/sites/default/files/documents/user-guide/g02135-v004-userguide.pdf)
-- Citation: Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., Windnagel, A. K. & Stafford, T. (2025). *Sea Ice Index* (G02135, Version 4). Boulder, Colorado USA. National Snow and Ice Data Center. [https://doi.org/10.7265/a98x-0f50](https://doi.org/10.7265/a98x-0f50). Accessed 2026-11-14.
-- Accessed: 2026-11-14.
-- Units: million square kilometers, as specified in the Version 4 user guide.
-- Use terms: NSIDC requires citation when these data are used; see [NSIDC data use and citation policy](https://nsidc.org/about/data-use-and-copyright).
-- Processing: the human-supplied `data-raw/N_09_extent_v4.0.csv` is filtered to September (`mo=9`) and Northern Hemisphere (`region=N`); its `extent` values are preserved as supplied. The processor validates 48 contiguous annual observations from 1979-2026 and verifies the `source_dataset` values.
-- Source transition: the Version 4 user guide says monthly `source_dataset` identifies the input product: NSIDC-0051 through 2024 and AMSR2/NSIDC-0803 from 2025. The guide attributes the switch to expected loss of SSMIS access and observed SSMIS degradation; pre-2025 Version 4 data are copies of Version 3. This product-input change is relevant when interpreting the time series.
-
-### Planned but not bundled: Monthly NDVI
-
-The NASA Earthdata catalog verifies [MODIS/Terra Vegetation Indices Monthly, MOD13C2.061](https://www.earthdata.nasa.gov/data/catalog/lpcloud-mod13c2-061), a global monthly product from February 2000 onward. Product data links are protected and redirect to Earthdata authentication. No credentials or suitable HDF4 extraction tool were available here, so no Amazon regional series appears in the application. NASA ESDIS [data-use guidance](https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance) says NASA-led mission data without a marked restriction are generally CC0 and encourages citation; confirm the product's current restrictions and citation before reuse.
-
-## Mapping in brief
-
-Values are normalized against each scene's observed range. Pitch follows a three-octave C-D-E-G-A pentatonic scale. Temperature tension measures distance from the zero-anomaly baseline; Arctic tension increases as extent drops below the dataset's 1981-2010 September mean (6.413333 million square kilometers). The absolute annual change controls 1-8 pulses and the level of soft pink noise. See [docs/SONIFICATION.md](docs/SONIFICATION.md) for the full, tested mapping.
-
-## Limitations
-
-- Global temperature and Arctic sea ice are playable; Amazon NDVI is not. The original three-scene acceptance criterion remains incomplete; see [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
-- The NSIDC source file was supplied locally; its exact provided download URL is the Northern Hemisphere monthly data directory linked above and in the About the data panel.
-- The Sea Ice Index changes input products in 2025, as described above and in the in-app data panel. This source transition should be considered when interpreting changes in extent.
-- The sonification is an educational representation, not a scientific visualization or a substitute for the underlying data.
-- The output has been checked in automated builds and browser playback, but a human has not yet listened and judged timbre, volume, or the 90-second demo.
-- Recording was verified in a Chromium browser: a 2024–2025 WebM/Opus file was 9,338 bytes and played through to completion; it decoded as 0.66 seconds of stereo audio at 48 kHz. Other browsers may choose a different supported format or lack MediaRecorder support.
-- There is no backend, account system, live satellite processing, or current deployment URL.
-- No project software license has been selected in this repository. Do not infer a project license from NASA data terms.
-
-## AI assistance
-
-AI assistance was used to scaffold and implement the current app, data processing script, tests, and documentation. A human provided the product brief and must still review the code, listen to the sound, confirm data terms and attribution, and check the event's AI disclosure and submission rules. See [docs/AI_USE.md](docs/AI_USE.md) for the detailed record and verification limits.
+- **Team:** `<TEAM NAME>`
+- **Member:** Srishti Pandey
+- **License:** `[Add license here]`
