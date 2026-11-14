@@ -2,14 +2,14 @@
 
 Earth Listens is a small, static sonification experiment for NASA Earth data. Move through the annual global temperature anomaly record and hear the value, its distance from the reference baseline, and its year-to-year change as pitch, tension, rhythm, and texture.
 
-This build contains **one playable scene with real data**: NASA GISS GISTEMP v4 global annual temperature anomalies, 1880-2025. Arctic sea ice and Amazon vegetation controls are visible but disabled because their source data could not be acquired and verified in this environment. No substitute or synthetic values are used.
+This build contains **two playable scenes with real data**: NASA GISS GISTEMP v4 global annual temperature anomalies (1880-2025) and the NSIDC Sea Ice Index Version 4 Northern Hemisphere September sea-ice extent series (1979-2026). Amazon vegetation remains unavailable because its source data could not be acquired and verified in this environment. No substitute or synthetic values are used.
 
 ## Run locally
 
 Requirements: Node.js 22.12 or newer and `curl` on `PATH` if you want to refresh the data.
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
@@ -33,12 +33,21 @@ To re-download and process the GISTEMP CSV into `public/data/global-temperature.
 npm run data:fetch
 ```
 
-The data refresh script uses the system `curl` executable. It records source, data URL, access date, units, NASA use guidance, citation, and processing steps in the generated JSON.
+The GISTEMP data refresh script uses the system `curl` executable. It records source, data URL, access date, units, NASA use guidance, citation, and processing steps in the generated JSON.
+
+The Arctic data file was supplied locally as `data-raw/N_09_extent_v4.0.csv`. Validate it and regenerate the bundled JSON with:
+
+```sh
+npm run data:sea-ice
+```
+
+The processor checks the September/Northern Hemisphere subset, validates 48 consecutive years (1979-2026) and the documented 2025 input-source transition, and copies the `extent` numbers without interpolation or rounding. The exact file-level download URL was not included with the supplied file; the JSON metadata cites the verified NSIDC product page and official data access root instead.
 
 ## Use the instrument
 
 - Choose a year with the range slider. Arrow keys move one year at a time.
 - Press **Play** to begin; the browser audio context and Tone.js nodes are created only after this gesture.
+- Choose **Arctic sea ice — September extent** to hear lower extent as greater tension against the 1981-2010 mean.
 - Choose Slow, Normal, or Fast playback.
 - Turn on **Compare periods** to listen to the selected year and a second year on opposite stereo sides.
 - **Mute** is always visible. Space toggles play/pause when focus is outside an interactive control; `M` toggles mute.
@@ -57,9 +66,17 @@ The data panel links to the NASA source and displays citation and use informatio
 - Use terms: the GISTEMP page asks users to cite the dataset and credit NASA GISS/GISTEMP. No dataset-specific restriction is stated there. NASA ESDIS [data-use guidance](https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance) describes NASA Earth science data as generally open and requests acknowledgment/citation; users must check any restrictions attached to a specific dataset.
 - Processing: select the CSV's annual `J-D` column, omit nonnumeric/incomplete rows, and sort observations by year. The source values are not AI-generated.
 
-### Planned but not bundled: Arctic sea ice
+### Bundled: Arctic sea ice
 
-The intended source is the [NSIDC Sea Ice Index](https://nsidc.org/data/g02135/versions/3), yearly September extent, 1979 onward. This host timed out during this run; the downloadable file and its usage terms could not be verified. No Arctic data appears in the application.
+- Source: [NSIDC Sea Ice Index, Version 4 (G02135)](https://nsidc.org/data/g02135/versions/4)
+- Official data access location: [NSIDC NOAA/G02135 HTTPS directory](https://noaadata.apps.nsidc.org/NOAA/G02135/)
+- User guide: [Sea Ice Index, Version 4 User Guide](https://nsidc.org/sites/default/files/documents/user-guide/g02135-v004-userguide.pdf)
+- Citation: Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., Windnagel, A. K. & Stafford, T. (2025). *Sea Ice Index* (G02135, Version 4). Boulder, Colorado USA. National Snow and Ice Data Center. [https://doi.org/10.7265/a98x-0f50](https://doi.org/10.7265/a98x-0f50). Accessed 2026-11-14.
+- Accessed: 2026-11-14.
+- Units: million square kilometers, as specified in the Version 4 user guide.
+- Use terms: NSIDC requires citation when these data are used; see [NSIDC data use and citation policy](https://nsidc.org/about/data-use-and-copyright).
+- Processing: the human-supplied `data-raw/N_09_extent_v4.0.csv` is filtered to September (`mo=9`) and Northern Hemisphere (`region=N`); its `extent` values are preserved as supplied. The processor validates 48 contiguous annual observations from 1979-2026 and verifies the `source_dataset` values.
+- Source transition: the Version 4 user guide says monthly `source_dataset` identifies the input product: NSIDC-0051 through 2024 and AMSR2/NSIDC-0803 from 2025. The guide attributes the switch to expected loss of SSMIS access and observed SSMIS degradation; pre-2025 Version 4 data are copies of Version 3. This product-input change is relevant when interpreting the time series.
 
 ### Planned but not bundled: Monthly NDVI
 
@@ -67,11 +84,13 @@ The NASA Earthdata catalog verifies [MODIS/Terra Vegetation Indices Monthly, MOD
 
 ## Mapping in brief
 
-Values are normalized against the bundled series range. Pitch follows a three-octave C-D-E-G-A pentatonic scale. Distance from the zero-anomaly baseline increases detuning and filter brightness; the melody remains ordered. The absolute annual change controls 1-8 pulses and the level of soft pink noise. See [docs/SONIFICATION.md](docs/SONIFICATION.md) for the full, tested mapping.
+Values are normalized against each scene's observed range. Pitch follows a three-octave C-D-E-G-A pentatonic scale. Temperature tension measures distance from the zero-anomaly baseline; Arctic tension increases as extent drops below the dataset's 1981-2010 September mean (6.413333 million square kilometers). The absolute annual change controls 1-8 pulses and the level of soft pink noise. See [docs/SONIFICATION.md](docs/SONIFICATION.md) for the full, tested mapping.
 
 ## Limitations
 
-- Only global temperature is currently playable. The two missing scenes, and therefore an Arctic-first live demo, remain blocked; see [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
+- Global temperature and Arctic sea ice are playable; Amazon NDVI is not. The original three-scene acceptance criterion remains incomplete; see [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
+- The NSIDC source file was supplied locally without the exact page URL used for download. Its metadata instead records the verified NSIDC product page and official data access root.
+- The Sea Ice Index changes input products in 2025, as described above and in the in-app data panel. This source transition should be considered when interpreting changes in extent.
 - The sonification is an educational representation, not a scientific visualization or a substitute for the underlying data.
 - The output has been checked in automated builds and browser playback, but a human has not yet listened and judged timbre, volume, or the 90-second demo.
 - There is no backend, account system, live satellite processing, or current deployment URL.

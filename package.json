@@ -9,7 +9,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "preview": "vite preview",
-    "data:fetch": "node scripts/fetch-data.mjs"
+    "data:fetch": "node scripts/fetch-data.mjs",
+    "data:sea-ice": "node scripts/process-sea-ice.mjs"
   },
   "dependencies": {
     "tone": "^15.1.22"

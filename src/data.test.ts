@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import { parseDataset } from './data';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { loadDataset, parseDataset } from './data';
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 const validDataset = {
   metadata: {
@@ -37,5 +41,18 @@ describe('parseDataset', () => {
       ...validDataset,
       values: [{ year: 2000, value: -1 }, { year: 2001, value: 2 }],
     })).toThrow('metadata range');
+  });
+});
+
+describe('loadDataset', () => {
+  it('fetches and validates a dataset from its URL', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(validDataset)));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(loadDataset('/data/test.json')).resolves.toMatchObject({
+      metadata: { id: 'test' },
+      values: validDataset.values,
+    });
+    expect(fetchMock).toHaveBeenCalledWith('/data/test.json');
   });
 });

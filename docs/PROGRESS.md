@@ -4,37 +4,39 @@
 
 ### What works
 
-- Static Vite/TypeScript application with one real, bundled NASA GISS global annual temperature series (1880-2025), attribution, access date, units, use guidance, and processing metadata.
+- Static Vite/TypeScript application with real NASA GISS global annual temperature (1880-2025) and NSIDC Arctic September extent (1979-2026) data, attribution, access dates, units, terms, and processing metadata.
 - Deterministic sonification mapping with unit tests; lazy Tone.js playback, limiter, mute, keyboard controls, status announcements, responsive chart, and two-period stereo compare.
+- Arctic scene uses the supplied 48-row NSIDC series, a computed 1981-2010 mean baseline of 6.413333 million square kilometers, and one-sided tension that rises as extent falls below that reference.
 - Visual refresh: brighter planetary artwork, a data-filled chart, clearer play controls, and a subtle playback meter that respects reduced-motion settings.
 - README, AI-use record, one-minute mapping notes, and an honest 90-second demo outline.
-- Final validation: `npm run build`, `npm test` (10 tests), `npm run lint`, runtime `npm audit --omit=dev` (0 vulnerabilities), and `npm run preview` passed. Browser checks loaded the static dataset, found no console errors/warnings, confirmed no horizontal overflow at desktop/mobile sizes, and confirmed Tone was not loaded before a gesture.
+- Final validation: `npm run build`, `npm test` (14 tests), `npm run lint`, runtime `npm audit --omit=dev` (0 vulnerabilities), and `npm run preview` passed. Browser checks loaded both static datasets, confirmed the 2012 Arctic description is tense, verified scene switching, and confirmed the full Arctic scene name fits at 390px.
 
 ### What does not work yet
 
-- Arctic sea-ice and Amazon NDVI scenes are not bundled or playable. Task 2 remains unchecked: only the GISTEMP retrieval/processing script was written. The NSIDC pages timed out and MODIS raw data requires Earthdata authorization and HDF processing.
-- The three-scene criterion and Arctic-first portion of the demo criterion are unmet; see `docs/KNOWN_ISSUES.md`.
+- Amazon NDVI is not bundled or playable; task 2 remains unchecked because the NDVI pipeline/data is still missing.
+- The exact NSIDC file-level download page was not supplied; metadata uses the verified product page and official data access root. Human confirmation is still needed before submission.
+- The three-scene criterion remains unmet; see `docs/KNOWN_ISSUES.md`.
 - The full npm audit reports 7 moderate development-tooling advisories; runtime-only audit is clean.
 - No human has listened to and approved the sound, independently verified all source terms, or reviewed event-specific AI/submission rules. No project software license has been selected.
 
 ### Decisions and assumptions
 
 - Used vanilla TypeScript/Vite with no application framework or backend.
-- Used GISTEMP's published 1951-1980 anomaly baseline (0 °C) and the bundled series' observed min/max and max annual change for mapping.
-- Disabled missing-data scenes instead of using estimates, repeated data, or sample values. Compare mode therefore compares two years from the one real series.
-- NASA source pages were the authority for data descriptions and general use guidance; where a source was inaccessible, no license or values were inferred.
+- Used GISTEMP's published 1951-1980 anomaly baseline (0 °C) and the NSIDC extent series' own 1981-2010 September mean (6.413333 million square kilometers) as its calm reference.
+- Disabled missing-data scenes instead of using estimates, repeated data, or sample values. Compare mode can now compare Arctic years, as well as temperature years.
+- The NSIDC Version 4 user guide states that `source_dataset` changes from NSIDC-0051 through 2024 to AMSR2/NSIDC-0803 from 2025, due to expected SSMIS access loss and observed degradation; this is surfaced in metadata and documentation.
 
 ### Morning verification checklist
 
-- [ ] Listen to the available scene and stereo comparison; check loudness, timbre, and whether baseline/extreme years sound as intended.
-- [ ] Confirm NASA GISS citation/terms and attribution; verify current NSIDC and MODIS access, dataset licenses/terms, and attribution before enabling the other scenes.
+- [ ] Listen to both available scenes and stereo comparison; check loudness, timbre, and whether the Arctic baseline/low-extent years sound as intended.
+- [ ] Confirm the exact NSIDC download page, citation/terms, source transition, and attribution; verify current MODIS access and terms before adding NDVI.
 - [ ] Check the NASA Space Apps event's AI-use and submission rules and choose/verify a project software license.
 - [ ] On a fresh machine, run `npm ci`, `npm run build`, `npm test`, `npm run lint`, and `npm run preview`.
 - [ ] Review keyboard/screen-reader behavior and the demo timing with a human.
 
 ## Resume notes
-- Current task: requested UI refinement — complete.
-- Half-done: no UI changes remain; the missing scene data and human sign-offs are the known follow-ups above.
+- Current task: Arctic sea-ice scene — complete.
+- Half-done: no Arctic implementation remains; Amazon NDVI and human verification remain follow-ups.
 - Exact next command for verification: `npm run build; npm test; npm run lint; npm run preview`
 - Failing test: none.
 
@@ -64,3 +66,8 @@
 - Task 9 validation: build, tests (10), and lint passed. The README and demo do not claim the missing scenes are implemented. The exact Arctic-first demo acceptance remains blocked and is recorded in known issues.
 - UI refinement complete: strengthened the landing-page copy, Earth illustration, instrument-card depth, chart fill/labels, and play-state visualization. Playback state is now exposed with `aria-pressed`; animations honor reduced motion. No dependencies added.
 - UI refinement validation: build, tests (10), and lint passed. Browser checks confirmed the production preview loads the data, the Play control enters its active state and pauses again, and the 390px mobile layout has no horizontal overflow.
+- Arctic data and scene complete: added `scripts/process-sea-ice.mjs`, generated the bundle from the human-supplied local CSV without interpolating or rounding values, and validated 48 gap-free years with the expected September/Northern Hemisphere fields and NSIDC source IDs. Added dataset-driven baseline/tension mapping, scene selection, data attribution, description, and chart reference.
+- Arctic provenance: NSIDC DOI resolves to the Version 4 product page, which links to the official user guide. The guide confirms million-square-kilometer extent units and explains the 2025 transition from NSIDC-0051 to AMSR2/NSIDC-0803. The exact file-level download page remains unspecified by the user; no direct URL was invented.
+- Arctic mapping baseline: mean of the supplied 1981-2010 September extent values is 6.413333 million square kilometers. Values below it increase tension; values at or above it remain calm. At 390px, the entire “Arctic sea ice — September extent” picker label fits after reducing only its mobile type size.
+- Added loader tests plus Arctic bounds/direction/baseline/2012-vs-1979 tests. Updated README, sonification notes, demo, AI-use record, and known issues. No dependencies added.
+- Arctic validation: `npm run data:sea-ice`, build, 14 tests, lint, and static preview passed. Browser verification confirmed temperature/Arctic switching, the 2012 low-extent announcement, the 1979 calm announcement, and the complete scene name at 390px.

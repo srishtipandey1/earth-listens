@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { mapObservation, normalizeValue } from './sonification';
+import rawArcticDataset from '../public/data/arctic-sea-ice.json';
+import { parseDataset } from './data';
+import {
+  averageForPeriod,
+  createMappingOptions,
+  mapObservation,
+  mapSeriesPoint,
+  normalizeValue,
+} from './sonification';
 
 const options = { min: -0.5, max: 1.3, baseline: 0, maxChange: 0.5 };
+const arcticDataset = parseDataset(rawArcticDataset);
+const arcticBaseline = averageForPeriod(arcticDataset.values, 1981, 2010);
+const arcticOptions = createMappingOptions(arcticDataset, arcticBaseline, 'lower-is-tense');
 
 describe('normalizeValue', () => {
   it('clamps to 0..1 and increases monotonically', () => {
@@ -43,5 +54,37 @@ describe('mapObservation', () => {
     expect(mapping.rateOfChange).toBe(1);
     expect(mapping.noteDensity).toBe(8);
     expect(mapping.noiseGain).toBe(0.18);
+  });
+});
+
+describe('Arctic sea-ice mapping', () => {
+  it('uses the complete 1981-2010 record as its baseline period', () => {
+    expect(arcticBaseline).toBeCloseTo(6.4133333333, 8);
+    expect(arcticDataset.values).toHaveLength(48);
+    expect(arcticDataset.values.map(({ year }) => year))
+      .toEqual(Array.from({ length: 48 }, (_, index) => 1979 + index));
+  });
+
+  it('keeps low-extent tension within bounds and reduces tension as extent rises', () => {
+    const extents = [arcticDataset.metadata.min, arcticBaseline, arcticDataset.metadata.max];
+    const tensions = extents.map((extent) => mapObservation(extent, undefined, arcticOptions).tension);
+
+    expect(tensions).toEqual([1, 0, 0]);
+    expect(tensions.every((tension) => tension >= 0 && tension <= 1)).toBe(true);
+  });
+
+  it('keeps the baseline consonant and makes 2012 tenser than 1979', () => {
+    const baseline = mapObservation(arcticBaseline, arcticBaseline, arcticOptions);
+    const year1979Index = arcticDataset.values.findIndex(({ year }) => year === 1979);
+    const year2012Index = arcticDataset.values.findIndex(({ year }) => year === 2012);
+    const year1979 = mapSeriesPoint(arcticDataset.values, year1979Index, arcticOptions);
+    const year2012 = mapSeriesPoint(arcticDataset.values, year2012Index, arcticOptions);
+
+    expect(baseline.tension).toBe(0);
+    expect(baseline.detuneCents).toBe(0);
+    expect(baseline.filterBrightness).toBe(0);
+    expect(baseline.noteDensity).toBe(1);
+    expect(baseline.noiseGain).toBe(0);
+    expect(year2012.tension).toBeGreaterThan(year1979.tension);
   });
 });

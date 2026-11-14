@@ -2,7 +2,7 @@ import aiUse from '../docs/AI_USE.md?raw';
 import sonificationNotes from '../docs/SONIFICATION.md?raw';
 import { AudioEngine } from './audio';
 import { loadDataset, type Dataset } from './data';
-import { createMappingOptions, mapSeriesPoint } from './sonification';
+import { averageForPeriod, createMappingOptions, mapSeriesPoint } from './sonification';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 
@@ -42,8 +42,8 @@ app.innerHTML = `
           <label class="sr-only" for="scene-select">Earth data scene</label>
           <select id="scene-select" class="scene-select">
             <option value="global-temperature">Global temperature anomaly</option>
-            <option value="arctic" disabled>Arctic sea ice — data unavailable</option>
-            <option value="vegetation" disabled>Amazon vegetation — data unavailable</option>
+            <option value="arctic-sea-ice">Arctic sea ice — September extent</option>
+            <option value="vegetation" disabled>Amazon vegetation — monthly NDVI unavailable</option>
           </select>
         </div>
         <div class="scene-tag"><span class="live-dot"></span> HISTORICAL RECORD</div>
@@ -51,7 +51,7 @@ app.innerHTML = `
 
       <div id="data-error" class="error-banner" role="alert" hidden></div>
       <div class="chart-wrap">
-        <div class="chart-labels" aria-hidden="true"><span>ANNUAL ANOMALY</span><span>REFERENCE 0°C</span></div>
+        <div class="chart-labels" aria-hidden="true"><span id="chart-measure-label">ANNUAL ANOMALY</span><span id="chart-baseline-label">REFERENCE 0°C</span></div>
         <svg id="data-chart" class="data-chart" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true"></svg>
         <div class="chart-years" aria-hidden="true"><span id="chart-start">—</span><span id="chart-end">—</span></div>
       </div>
@@ -111,7 +111,8 @@ app.innerHTML = `
           <a id="source-link" href="https://data.giss.nasa.gov/gistemp/" target="_blank" rel="noopener noreferrer">Open the source dataset</a>
           <p id="data-terms"></p>
           <p id="data-citation" class="citation"></p>
-          <p class="availability-note"><strong>Other scenes:</strong> Arctic sea ice and monthly Amazon NDVI are not bundled because their official data could not be downloaded and verified in this environment.</p>
+          <p id="data-processing" class="citation"></p>
+          <p id="availability-note" class="availability-note"></p>
         </div>
       </details>
       <div class="mapping-note">
@@ -146,6 +147,7 @@ function requiredElement<T extends Element>(selector: string): T {
 }
 
 const yearSlider = requiredElement<HTMLInputElement>('#year-slider');
+const sceneSelect = requiredElement<HTMLSelectElement>('#scene-select');
 const instrument = requiredElement<HTMLElement>('.instrument');
 const compareSlider = requiredElement<HTMLInputElement>('#compare-slider');
 const compareToggle = requiredElement<HTMLInputElement>('#compare-toggle');
@@ -170,6 +172,10 @@ const dataSource = requiredElement<HTMLParagraphElement>('#data-source');
 const sourceLink = requiredElement<HTMLAnchorElement>('#source-link');
 const dataTerms = requiredElement<HTMLParagraphElement>('#data-terms');
 const dataCitation = requiredElement<HTMLParagraphElement>('#data-citation');
+const dataProcessing = requiredElement<HTMLParagraphElement>('#data-processing');
+const availabilityNote = requiredElement<HTMLParagraphElement>('#availability-note');
+const chartMeasureLabel = requiredElement<HTMLSpanElement>('#chart-measure-label');
+const chartBaselineLabel = requiredElement<HTMLSpanElement>('#chart-baseline-label');
 const aiDialog = requiredElement<HTMLDialogElement>('#ai-dialog');
 const aiTitle = requiredElement<HTMLHeadingElement>('#ai-title');
 const aiLink = requiredElement<HTMLButtonElement>('#ai-link');
@@ -187,7 +193,9 @@ let timer: number | undefined;
 let muted = false;
 
 function formatValue(value: number): string {
-  return `${value > 0 ? '+' : ''}${value.toFixed(2)}°`;
+  return dataset?.metadata.id === 'arctic-sea-ice'
+    ? value.toFixed(2)
+    : `${value > 0 ? '+' : ''}${value.toFixed(2)}°`;
 }
 
 function getDescription(index: number): string {
@@ -196,8 +204,12 @@ function getDescription(index: number): string {
   }
   const point = dataset.values[index];
   const mapping = mapSeriesPoint(dataset.values, index, mappingOptions);
-  const direction = point.value > 0 ? 'above' : point.value < 0 ? 'below' : 'at';
   const mood = mapping.tension > 0.65 ? 'tense' : mapping.tension > 0.3 ? 'restless' : 'calm';
+  if (dataset.metadata.id === 'arctic-sea-ice') {
+    const direction = point.value > mappingOptions.baseline ? 'above' : point.value < mappingOptions.baseline ? 'below' : 'at';
+    return `Year ${point.year}: September Northern Hemisphere sea-ice extent ${point.value.toFixed(2)} million square kilometers, ${direction} the 1981–2010 mean; sound is ${mood}.`;
+  }
+  const direction = point.value > 0 ? 'above' : point.value < 0 ? 'below' : 'at';
   return `Year ${point.year}: global temperature anomaly ${Math.abs(point.value).toFixed(2)} degrees Celsius ${direction} the 1951–1980 mean; sound is ${mood}.`;
 }
 
@@ -213,6 +225,8 @@ function updateChart(): void {
     const y = 235 - ((point.value - data.metadata.min) / range) * 205;
     return `${index === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(' ');
+  const baseline = mappingOptions?.baseline ?? 0;
+  const baselineY = 235 - ((baseline - data.metadata.min) / range) * 205;
   const currentPoint = points[currentIndex];
   const currentX = (currentIndex / (points.length - 1)) * 1000;
   const currentY = 235 - ((currentPoint.value - data.metadata.min) / range) * 205;
@@ -230,7 +244,7 @@ function updateChart(): void {
         <stop offset="100%" stop-color="#68a98a" stop-opacity=".02"></stop>
       </linearGradient>
     </defs>
-    <line class="chart-baseline" x1="0" y1="${(235 - ((0 - data.metadata.min) / range) * 205).toFixed(1)}" x2="1000" y2="${(235 - ((0 - data.metadata.min) / range) * 205).toFixed(1)}"></line>
+    <line class="chart-baseline" x1="0" y1="${baselineY.toFixed(1)}" x2="1000" y2="${baselineY.toFixed(1)}"></line>
     <path class="chart-area" d="${path} L1000,235 L0,235 Z"></path>
     <path class="chart-line" d="${path}"></path>
     ${compareMarker}
@@ -258,11 +272,16 @@ function updateReadout(announce: boolean): void {
 }
 
 function updateDataPanel(data: Dataset): void {
+  const isArcticSeaIce = data.metadata.id === 'arctic-sea-ice';
   dataSource.textContent = data.metadata.source;
   sourceLink.href = data.metadata.url;
   sourceLink.textContent = `${data.metadata.title} (source page)`;
   dataTerms.textContent = `${data.metadata.units}. ${data.metadata.license} Accessed ${data.metadata.accessed}.`;
   dataCitation.textContent = data.metadata.citation;
+  dataProcessing.textContent = data.metadata.processing.join(' ');
+  availabilityNote.textContent = isArcticSeaIce
+    ? 'Other scene: Amazon monthly NDVI is not bundled because the data could not be downloaded and verified.'
+    : 'Other scene: Arctic sea ice is available; Amazon monthly NDVI is not bundled because the data could not be downloaded and verified.';
   valueUnits.textContent = data.metadata.units;
 }
 
@@ -374,7 +393,10 @@ function setCompareYearFromSlider(): void {
 
 function initializeDataset(data: Dataset): void {
   dataset = data;
-  mappingOptions = createMappingOptions(data, 0);
+  const isArcticSeaIce = data.metadata.id === 'arctic-sea-ice';
+  const baseline = isArcticSeaIce ? averageForPeriod(data.values, 1981, 2010) : 0;
+  mappingOptions = createMappingOptions(data, baseline, isArcticSeaIce ? 'lower-is-tense' : 'baseline-distance');
+  sceneSelect.value = data.metadata.id;
   currentIndex = 0;
   compareIndex = Math.max(0, data.values.findIndex(({ year }) => year === 2000));
   yearSlider.min = '0';
@@ -389,12 +411,69 @@ function initializeDataset(data: Dataset): void {
   playButton.disabled = false;
   chartStart.textContent = String(data.values[0].year);
   chartEnd.textContent = String(data.values[data.values.length - 1].year);
+  chartMeasureLabel.textContent = isArcticSeaIce ? 'SEPTEMBER EXTENT' : 'ANNUAL ANOMALY';
+  chartBaselineLabel.textContent = isArcticSeaIce ? `1981–2010 MEAN ${baseline.toFixed(2)}` : 'REFERENCE 0°C';
   rangeStart.textContent = chartStart.textContent;
   rangeEnd.textContent = chartEnd.textContent;
   updateDataPanel(data);
   updateReadout(false);
   liveStatus.textContent = `${data.metadata.title} loaded, ${data.values.length} annual observations.`;
 }
+
+const datasetPaths: Record<string, string> = {
+  'global-temperature': 'data/global-temperature.json',
+  'arctic-sea-ice': 'data/arctic-sea-ice.json',
+};
+const datasetCache = new Map<string, Dataset>();
+
+async function loadScene(sceneId: string): Promise<Dataset> {
+  const cachedDataset = datasetCache.get(sceneId);
+  if (cachedDataset) {
+    return cachedDataset;
+  }
+
+  const dataPath = datasetPaths[sceneId];
+  if (!dataPath) {
+    throw new Error(`No dataset is configured for scene "${sceneId}".`);
+  }
+
+  const loadedDataset = await loadDataset(`${import.meta.env.BASE_URL}${dataPath}`);
+  if (loadedDataset.metadata.id !== sceneId) {
+    throw new Error(`Requested scene "${sceneId}" but loaded "${loadedDataset.metadata.id}".`);
+  }
+  datasetCache.set(sceneId, loadedDataset);
+  return loadedDataset;
+}
+
+sceneSelect.addEventListener('change', () => {
+  const sceneId = sceneSelect.value;
+  stopPlayback();
+  sceneSelect.disabled = true;
+  yearSlider.disabled = true;
+  compareSlider.disabled = true;
+  compareToggle.disabled = true;
+  playButton.disabled = true;
+  errorBanner.hidden = true;
+  liveStatus.textContent = `Loading ${sceneSelect.selectedOptions[0].textContent}…`;
+  void loadScene(sceneId)
+    .then((data) => {
+      initializeDataset(data);
+    })
+    .catch((error: unknown) => {
+      errorBanner.hidden = false;
+      errorBanner.textContent = error instanceof Error ? `Scene data could not be loaded: ${error.message}` : 'Scene data could not be loaded.';
+      liveStatus.textContent = errorBanner.textContent;
+      sceneSelect.value = dataset?.metadata.id ?? 'global-temperature';
+    })
+    .finally(() => {
+      sceneSelect.disabled = false;
+      const dataReady = dataset !== null;
+      yearSlider.disabled = !dataReady;
+      compareSlider.disabled = !dataReady;
+      compareToggle.disabled = !dataReady;
+      playButton.disabled = !dataReady;
+    });
+});
 
 yearSlider.addEventListener('input', setCurrentYearFromSlider);
 compareSlider.addEventListener('input', setCompareYearFromSlider);
@@ -457,7 +536,7 @@ window.addEventListener('beforeunload', () => {
   audio.dispose();
 });
 
-void loadDataset(`${import.meta.env.BASE_URL}data/global-temperature.json`)
+void loadScene('global-temperature')
   .then(initializeDataset)
   .catch((error: unknown) => {
     errorBanner.hidden = false;

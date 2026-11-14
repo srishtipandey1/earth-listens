@@ -1,0 +1,217 @@
+{
+  "metadata": {
+    "id": "arctic-sea-ice",
+    "title": "Northern Hemisphere September Sea Ice Extent",
+    "source": "National Snow and Ice Data Center (NSIDC), Sea Ice Index Version 4",
+    "url": "https://nsidc.org/data/g02135/versions/4",
+    "dataUrl": "https://noaadata.apps.nsidc.org/NOAA/G02135/",
+    "accessed": "2026-11-14",
+    "units": "million square kilometers",
+    "license": "NSIDC requires citation of this dataset when used; see its data-use and citation policy.",
+    "licenseUrl": "https://nsidc.org/about/data-use-and-copyright",
+    "citation": "Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., Windnagel, A. K. & Stafford, T. (2025). Sea Ice Index (G02135, Version 4). Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.7265/a98x-0f50. Accessed 2026-11-14.",
+    "processing": [
+      "Read the human-supplied local file data-raw/N_09_extent_v4.0.csv; no remote file URL was supplied.",
+      "Select the September (mo=9) Northern Hemisphere (region=N) rows and the extent column; retain the numeric values without interpolation, rounding, or other modification.",
+      "Validate exactly 48 consecutive annual values from 1979 through 2026.",
+      "The Version 4 user guide (https://nsidc.org/sites/default/files/documents/user-guide/g02135-v004-userguide.pdf) states that source_dataset identifies the input product: NSIDC-0051 through 2024 and NSIDC-0803 (AMSR2) from 2025. It says the change was driven by expected loss of SSMIS access and observed SSMIS degradation; pre-2025 Version 4 data are copies of Version 3.",
+      "The user guide states monthly extent is expressed in millions of square kilometers."
+    ],
+    "min": 3.57,
+    "max": 7.67
+  },
+  "values": [
+    {
+      "year": 1979,
+      "value": 7.05
+    },
+    {
+      "year": 1980,
+      "value": 7.67
+    },
+    {
+      "year": 1981,
+      "value": 7.14
+    },
+    {
+      "year": 1982,
+      "value": 7.3
+    },
+    {
+      "year": 1983,
+      "value": 7.39
+    },
+    {
+      "year": 1984,
+      "value": 6.81
+    },
+    {
+      "year": 1985,
+      "value": 6.7
+    },
+    {
+      "year": 1986,
+      "value": 7.41
+    },
+    {
+      "year": 1987,
+      "value": 7.28
+    },
+    {
+      "year": 1988,
+      "value": 7.37
+    },
+    {
+      "year": 1989,
+      "value": 7.01
+    },
+    {
+      "year": 1990,
+      "value": 6.14
+    },
+    {
+      "year": 1991,
+      "value": 6.47
+    },
+    {
+      "year": 1992,
+      "value": 7.47
+    },
+    {
+      "year": 1993,
+      "value": 6.4
+    },
+    {
+      "year": 1994,
+      "value": 7.14
+    },
+    {
+      "year": 1995,
+      "value": 6.08
+    },
+    {
+      "year": 1996,
+      "value": 7.58
+    },
+    {
+      "year": 1997,
+      "value": 6.69
+    },
+    {
+      "year": 1998,
+      "value": 6.54
+    },
+    {
+      "year": 1999,
+      "value": 6.12
+    },
+    {
+      "year": 2000,
+      "value": 6.25
+    },
+    {
+      "year": 2001,
+      "value": 6.73
+    },
+    {
+      "year": 2002,
+      "value": 5.83
+    },
+    {
+      "year": 2003,
+      "value": 6.12
+    },
+    {
+      "year": 2004,
+      "value": 5.98
+    },
+    {
+      "year": 2005,
+      "value": 5.5
+    },
+    {
+      "year": 2006,
+      "value": 5.86
+    },
+    {
+      "year": 2007,
+      "value": 4.27
+    },
+    {
+      "year": 2008,
+      "value": 4.69
+    },
+    {
+      "year": 2009,
+      "value": 5.26
+    },
+    {
+      "year": 2010,
+      "value": 4.87
+    },
+    {
+      "year": 2011,
+      "value": 4.56
+    },
+    {
+      "year": 2012,
+      "value": 3.57
+    },
+    {
+      "year": 2013,
+      "value": 5.21
+    },
+    {
+      "year": 2014,
+      "value": 5.22
+    },
+    {
+      "year": 2015,
+      "value": 4.62
+    },
+    {
+      "year": 2016,
+      "value": 4.53
+    },
+    {
+      "year": 2017,
+      "value": 4.82
+    },
+    {
+      "year": 2018,
+      "value": 4.79
+    },
+    {
+      "year": 2019,
+      "value": 4.36
+    },
+    {
+      "year": 2020,
+      "value": 4
+    },
+    {
+      "year": 2021,
+      "value": 4.95
+    },
+    {
+      "year": 2022,
+      "value": 4.9
+    },
+    {
+      "year": 2023,
+      "value": 4.38
+    },
+    {
+      "year": 2024,
+      "value": 4.35
+    },
+    {
+      "year": 2025,
+      "value": 4.75
+    },
+    {
+      "year": 2026,
+      "value": 4.81
+    }
+  ]
+}
