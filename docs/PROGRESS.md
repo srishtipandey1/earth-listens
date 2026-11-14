@@ -39,9 +39,9 @@
 - [ ] Review keyboard/screen-reader behavior and the demo timing with a human.
 
 ## Resume notes
-- Current task: GitHub Pages deployment and instrument redesign — implementation and validation complete; local commit pending.
-- Half-done: commit the reviewed UI/docs changes, confirm a clean worktree, and stop the preview server. Amazon NDVI and human verification remain follow-ups.
-- Exact next command for verification: `git diff --check; npm test; npm run lint; npm run build`
+- Current task: GitHub Pages deployment and instrument redesign — implementation, validation, and local commits complete.
+- Half-done: no code changes remain. GitHub Pages still needs repository settings and a future push to `main`; Amazon NDVI and human sound/data review remain follow-ups.
+- Exact next command for a fresh local verification: `npm ci; npm test; npm run lint; npm run build`
 - Failing test: none.
 
 ## Task log
@@ -79,3 +79,4 @@
 - GitHub Pages deployment: set Vite's production base to `/earth-listens/` and added a `main`-push Actions workflow that installs dependencies, tests, lints, builds, and deploys `dist/`. Build output and production preview confirmed HTML, JS, CSS, and both dataset URLs return successfully under the repository path; Arctic scene switching loads its JSON. Build, all 14 tests, and lint pass.
 - Instrument redesign: replaced the dashboard-like layout with a bold editorial instrument, temperature stripes derived from annual anomalies, and polar ice circles whose areas are proportional to the JSON extent values with the 1981-2010 mean ring. Added a tension needle, keyboard-accessible year scrubber, pointer scrubbing, data-derived moment buttons, and side-by-side left/right comparison. Simplified About the data and moved processing and the unbundled vegetation note into collapsed technical details. No dependencies added; the absent screenshot was not available, so followed the written direction.
 - Instrument validation: `npm run build`, `npm test` (17; the original 14 still pass), and `npm run lint` passed. Production preview at `/earth-listens/` returned HTTP 200 for page, JS, CSS, and both datasets. Browser checks at 1440px and 390px verified the full scene label, data-derived Arctic record-low moment, comparison labels/visuals, visible exact NSIDC URL, and no console errors. No audio is started on load.
+- Local commits: `628fde8 Deploy site to GitHub Pages` and `3b9a778 Redesign Earth Listens instrument`. The worktree is clean; nothing was pushed.
