@@ -6,6 +6,7 @@
 
 - Static Vite/TypeScript application with one real, bundled NASA GISS global annual temperature series (1880-2025), attribution, access date, units, use guidance, and processing metadata.
 - Deterministic sonification mapping with unit tests; lazy Tone.js playback, limiter, mute, keyboard controls, status announcements, responsive chart, and two-period stereo compare.
+- Visual refresh: brighter planetary artwork, a data-filled chart, clearer play controls, and a subtle playback meter that respects reduced-motion settings.
 - README, AI-use record, one-minute mapping notes, and an honest 90-second demo outline.
 - Final validation: `npm run build`, `npm test` (10 tests), `npm run lint`, runtime `npm audit --omit=dev` (0 vulnerabilities), and `npm run preview` passed. Browser checks loaded the static dataset, found no console errors/warnings, confirmed no horizontal overflow at desktop/mobile sizes, and confirmed Tone was not loaded before a gesture.
 
@@ -32,9 +33,9 @@
 - [ ] Review keyboard/screen-reader behavior and the demo timing with a human.
 
 ## Resume notes
-- Current task: 10 of 10 — complete.
-- Half-done: no further implementation is in progress; the missing scene data and human sign-offs are the known follow-ups above.
-- Exact next command for morning verification: `npm ci; npm run build; npm test; npm run lint; npm run preview`
+- Current task: requested UI refinement — complete.
+- Half-done: no UI changes remain; the missing scene data and human sign-offs are the known follow-ups above.
+- Exact next command for verification: `npm run build; npm test; npm run lint; npm run preview`
 - Failing test: none.
 
 ## Task log
@@ -61,3 +62,5 @@
 - Task 8 validation: build, tests (10), and lint passed. Static `npm run preview` loaded the actual dataset and embedded docs; desktop and 390px layouts had no horizontal overflow, and preview console had no errors or warnings.
 - Task 9 complete: wrote a README with setup, data sourcing/terms, mapping and limitations; replaced AI-use placeholders with an accurate work/verification record; and added a timed 90-second demo that starts in silence and explicitly discloses the unavailable Arctic scene before demonstrating global temperature.
 - Task 9 validation: build, tests (10), and lint passed. The README and demo do not claim the missing scenes are implemented. The exact Arctic-first demo acceptance remains blocked and is recorded in known issues.
+- UI refinement complete: strengthened the landing-page copy, Earth illustration, instrument-card depth, chart fill/labels, and play-state visualization. Playback state is now exposed with `aria-pressed`; animations honor reduced motion. No dependencies added.
+- UI refinement validation: build, tests (10), and lint passed. Browser checks confirmed the production preview loads the data, the Play control enters its active state and pauses again, and the 390px mobile layout has no horizontal overflow.

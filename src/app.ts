@@ -14,19 +14,24 @@ app.innerHTML = `
   <main class="shell">
     <header class="topbar">
       <a class="wordmark" href="#" aria-label="Earth Listens home">EARTH <span>LISTENS</span></a>
-      <span class="topbar-note">NASA EARTH DATA, MADE AUDIBLE</span>
+      <span class="topbar-note"><span class="topbar-spark" aria-hidden="true"></span> NASA EARTH DATA, MADE AUDIBLE</span>
       <button id="mute-button" class="button button-quiet" type="button" aria-pressed="false" aria-label="Mute audio">Mute</button>
     </header>
 
     <section class="hero" aria-labelledby="page-title">
       <div class="hero-copy">
-        <p class="eyebrow">AN INSTRUMENT FOR THE PLANET</p>
+        <p class="eyebrow hero-eyebrow">AN INSTRUMENT FOR THE PLANET</p>
         <h1 id="page-title">Earth,<br><em>in another key.</em></h1>
-        <p class="hero-description">Move through NASA's record of a changing world. Listen for the patterns inside the data.</p>
+        <p class="hero-description">A planet-sized playlist, made from NASA data. Pick a year, press play, and listen for the world changing its tune.</p>
+        <p class="hero-footnote"><span aria-hidden="true">✦</span> No autoplay. You set the tempo.</p>
       </div>
       <div class="orbit-art" aria-hidden="true">
         <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
-        <div class="planet"></div><span class="orbit-label">1951—1980<br>REFERENCE</span>
+        <div class="orbit orbit-three"></div>
+        <div class="planet"><span class="planet-shine"></span></div>
+        <span class="satellite"></span>
+        <span class="orbit-label">1951—1980<br>REFERENCE</span>
+        <span class="orbit-coordinate">EARTH / 001</span>
       </div>
     </section>
 
@@ -77,7 +82,9 @@ app.innerHTML = `
 
       <div class="transport">
         <div class="transport-main">
-          <button id="play-button" class="button button-play" type="button" disabled><span aria-hidden="true">▶</span> Play</button>
+          <button id="play-button" class="button button-play" type="button" aria-label="Play from the selected year" aria-pressed="false" disabled>
+            <span class="play-icon" aria-hidden="true"><i></i><i></i><i></i></span><span id="play-label">Play</span>
+          </button>
           <label class="speed-control">SPEED
             <select id="speed-select" aria-label="Playback speed">
               <option value="1000">Slow</option>
@@ -139,10 +146,12 @@ function requiredElement<T extends Element>(selector: string): T {
 }
 
 const yearSlider = requiredElement<HTMLInputElement>('#year-slider');
+const instrument = requiredElement<HTMLElement>('.instrument');
 const compareSlider = requiredElement<HTMLInputElement>('#compare-slider');
 const compareToggle = requiredElement<HTMLInputElement>('#compare-toggle');
 const compareControls = requiredElement<HTMLDivElement>('#compare-controls');
 const playButton = requiredElement<HTMLButtonElement>('#play-button');
+const playLabel = requiredElement<HTMLSpanElement>('#play-label');
 const speedSelect = requiredElement<HTMLSelectElement>('#speed-select');
 const muteButton = requiredElement<HTMLButtonElement>('#mute-button');
 const liveStatus = requiredElement<HTMLParagraphElement>('#live-status');
@@ -215,7 +224,14 @@ function updateChart(): void {
     : '';
 
   chart.innerHTML = `
+    <defs>
+      <linearGradient id="chart-area-fill" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#efad50" stop-opacity=".4"></stop>
+        <stop offset="100%" stop-color="#68a98a" stop-opacity=".02"></stop>
+      </linearGradient>
+    </defs>
     <line class="chart-baseline" x1="0" y1="${(235 - ((0 - data.metadata.min) / range) * 205).toFixed(1)}" x2="1000" y2="${(235 - ((0 - data.metadata.min) / range) * 205).toFixed(1)}"></line>
+    <path class="chart-area" d="${path} L1000,235 L0,235 Z"></path>
     <path class="chart-line" d="${path}"></path>
     ${compareMarker}
     <circle class="chart-marker chart-marker-current" cx="${currentX.toFixed(1)}" cy="${currentY.toFixed(1)}" r="8"></circle>
@@ -250,6 +266,13 @@ function updateDataPanel(data: Dataset): void {
   valueUnits.textContent = data.metadata.units;
 }
 
+function updatePlaybackControl(active: boolean): void {
+  instrument.classList.toggle('is-playing', active);
+  playButton.setAttribute('aria-pressed', String(active));
+  playButton.setAttribute('aria-label', active ? 'Pause playback' : 'Play from the selected year');
+  playLabel.textContent = active ? 'Pause' : 'Play';
+}
+
 function stopPlayback(): void {
   playing = false;
   if (timer !== undefined) {
@@ -257,8 +280,7 @@ function stopPlayback(): void {
     timer = undefined;
   }
   audio.stop();
-  playButton.innerHTML = '<span aria-hidden="true">▶</span> Play';
-  playButton.setAttribute('aria-label', 'Play from the selected year');
+  updatePlaybackControl(false);
 }
 
 function playCurrent(): void {
@@ -306,8 +328,7 @@ async function startPlayback(): Promise<void> {
   try {
     await audio.start();
     playing = true;
-    playButton.innerHTML = '<span aria-hidden="true">Ⅱ</span> Pause';
-    playButton.setAttribute('aria-label', 'Pause playback');
+    updatePlaybackControl(true);
     updateReadout(true);
     schedulePlayback();
     playCurrent();
