@@ -131,9 +131,20 @@ summary {
   padding-block: 1.4rem 1.2rem;
 }
 
-.opening > div,
+.opening-heading,
 .opening-note {
   flex: 1;
+}
+
+.opening-heading {
+  min-width: 0;
+}
+
+.hero-block {
+  max-width: 39rem;
+  margin-top: 0.7rem;
+  padding: 1.15rem 1.4rem 1.35rem;
+  background: var(--accent);
 }
 
 .eyebrow {
@@ -145,7 +156,7 @@ summary {
 }
 
 .opening h1 {
-  margin: 0.8rem 0 0;
+  margin: 0;
   color: var(--ink);
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(3rem, 5.4vw, 5rem);
@@ -155,7 +166,7 @@ summary {
 }
 
 .opening h1 em {
-  color: #535963;
+  color: var(--ink);
   font-weight: 400;
 }
 
@@ -239,10 +250,38 @@ summary {
 }
 
 .visual-legend {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 1rem;
   margin: 0;
   color: var(--muted);
   font-size: 0.82rem;
-  text-align: right;
+}
+
+.temperature-legend {
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.legend-swatch {
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1px solid rgb(32 35 42 / 35%);
+}
+
+.legend-swatch-blue {
+  background: #3479b7;
+}
+
+.legend-swatch-red {
+  background: #d34132;
 }
 
 .data-visual {
@@ -299,6 +338,10 @@ summary {
   white-space: nowrap;
 }
 
+.stripe-chart {
+  position: relative;
+}
+
 .temperature-stripes {
   display: block;
   width: 100%;
@@ -316,9 +359,31 @@ summary {
 }
 
 .stripe-playhead {
-  stroke: var(--accent);
-  stroke-width: 5;
+  stroke: var(--ink);
+  stroke-width: 3.5;
   vector-effect: non-scaling-stroke;
+}
+
+.stripe-playhead-halo {
+  stroke: #fff;
+  stroke-width: 9;
+  vector-effect: non-scaling-stroke;
+}
+
+.stripe-year-label {
+  position: absolute;
+  top: 0.5rem;
+  left: clamp(2.6rem, var(--playhead-position), calc(100% - 2.6rem));
+  min-width: 4.4rem;
+  padding: 0.28rem 0.4rem;
+  transform: translateX(-50%);
+  color: #fff;
+  background: var(--ink);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 760;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .stripe-marker {
@@ -958,7 +1023,7 @@ input[type="range"]:disabled {
   }
 
   .visual-legend {
-    text-align: left;
+    justify-content: start;
   }
 
   .data-visual {
@@ -1055,6 +1120,10 @@ input[type="range"]:disabled {
 
   .temperature-stripes {
     height: 11rem;
+  }
+
+  .hero-block {
+    padding: 1rem 1.1rem 1.2rem;
   }
 
   .polar-visual {

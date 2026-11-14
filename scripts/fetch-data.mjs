@@ -10,6 +10,7 @@ const projectDirectory = resolve(scriptDirectory, '..');
 const outputDirectory = resolve(projectDirectory, 'public', 'data');
 const dataUrl = 'https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv';
 const metadataUrl = 'https://data.giss.nasa.gov/gistemp/data_v4.html';
+const accessed = new Date().toISOString().slice(0, 10);
 const curl = process.platform === 'win32' ? 'curl.exe' : 'curl';
 const csv = execFileSync(curl, ['--fail', '--location', '--silent', '--show-error', dataUrl], {
   encoding: 'utf8',
@@ -49,11 +50,11 @@ const dataset = {
     source: 'NASA Goddard Institute for Space Studies, GISTEMP v4',
     url: metadataUrl,
     dataUrl,
-    accessed: new Date().toISOString().slice(0, 10),
+    accessed,
     units: 'degrees Celsius relative to the 1951-1980 mean',
     license: 'NASA Earth science data; cite NASA GISS/GISTEMP. No dataset-specific restriction is stated on the source page. See NASA ESDIS data-use guidance.',
     licenseUrl: 'https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance',
-    citation: 'GISTEMP Team, 2026: GISS Surface Temperature Analysis (GISTEMP), version 4. NASA Goddard Institute for Space Studies. Cite the dataset page with the access date.',
+    citation: `GISTEMP Team. GISS Surface Temperature Analysis (GISTEMP), version 4. NASA Goddard Institute for Space Studies. Accessed ${accessed}.`,
     processing: [
       'Read the global-mean monthly/seasonal/annual CSV linked by the NASA GISTEMP v4 data page.',
       'Select the annual J-D column, which is the calendar-year mean anomaly.',

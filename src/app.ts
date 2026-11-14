@@ -20,9 +20,11 @@ app.innerHTML = `
     </header>
 
     <section class="opening" aria-labelledby="page-title">
-      <div>
+      <div class="opening-heading">
         <p class="eyebrow">THE EARTH INFORMATION JUKEBOX</p>
-        <h1 id="page-title">Listen to the<br><em>shape of change.</em></h1>
+        <div class="hero-block">
+          <h1 id="page-title">Listen to the<br><em>shape of change.</em></h1>
+        </div>
       </div>
       <div class="opening-note">
         <p>Real Earth records, played one year at a time. Choose a scene, set the year, and hear what the numbers are doing.</p>
@@ -73,7 +75,7 @@ app.innerHTML = `
 
       <div class="visual-heading">
         <p id="visual-title">The record at a glance</p>
-        <p id="visual-legend" class="visual-legend"></p>
+        <div id="visual-legend" class="visual-legend"></div>
       </div>
       <div id="data-visual" class="data-visual" aria-hidden="true"></div>
       <p class="visual-hint">Drag across the visual to scrub through time. Use the year control below for keyboard access.</p>
@@ -118,7 +120,6 @@ app.innerHTML = `
         <h3 id="data-name" class="data-name"></h3>
         <p id="data-citation" class="citation"></p>
         <div class="source-links">
-          <a id="source-link" href="" target="_blank" rel="noopener noreferrer">Open the source page</a>
           <a id="source-data-link" href="" target="_blank" rel="noopener noreferrer">Open the source data</a>
         </div>
         <details class="technical-details">
@@ -167,7 +168,7 @@ const instrument = requiredElement<HTMLElement>('#instrument');
 const sceneSelect = requiredElement<HTMLSelectElement>('#scene-select');
 const sceneRecord = requiredElement<HTMLParagraphElement>('#scene-record');
 const visualTitle = requiredElement<HTMLParagraphElement>('#visual-title');
-const visualLegend = requiredElement<HTMLParagraphElement>('#visual-legend');
+const visualLegend = requiredElement<HTMLDivElement>('#visual-legend');
 const dataVisual = requiredElement<HTMLDivElement>('#data-visual');
 const yearSlider = requiredElement<HTMLInputElement>('#year-slider');
 const compareSlider = requiredElement<HTMLInputElement>('#compare-slider');
@@ -191,7 +192,6 @@ const vuNeedle = requiredElement<SVGLineElement>('#vu-needle');
 const dataAbout = requiredElement<HTMLParagraphElement>('#data-about');
 const dataName = requiredElement<HTMLHeadingElement>('#data-name');
 const dataCitation = requiredElement<HTMLParagraphElement>('#data-citation');
-const sourceLink = requiredElement<HTMLAnchorElement>('#source-link');
 const sourceDataLink = requiredElement<HTMLAnchorElement>('#source-data-link');
 const dataTerms = requiredElement<HTMLParagraphElement>('#data-terms');
 const dataProcessing = requiredElement<HTMLUListElement>('#data-processing');
@@ -262,15 +262,20 @@ function renderTemperaturePanel(index: number, side: string, label: string): str
   const point = values[index];
   const middleYear = values[Math.floor((values.length - 1) / 2)].year;
   const value = formatValue(point.value);
+  const markerPosition = (markerX / 1000 * 100).toFixed(3);
 
   return `
     <section class="visual-side" data-scrub-side="${side}">
       <div class="visual-side-label"><span>${label}</span><strong>${point.year} · ${value}</strong></div>
-      <svg class="temperature-stripes" viewBox="0 0 1000 180" preserveAspectRatio="none">
-        ${stripes}
-        <line class="stripe-playhead" x1="${markerX.toFixed(2)}" y1="0" x2="${markerX.toFixed(2)}" y2="180"></line>
-        <circle class="stripe-marker" cx="${markerX.toFixed(2)}" cy="162" r="8"></circle>
-      </svg>
+      <div class="stripe-chart" style="--playhead-position: ${markerPosition}%">
+        <svg class="temperature-stripes" viewBox="0 0 1000 180" preserveAspectRatio="none">
+          ${stripes}
+          <line class="stripe-playhead-halo" x1="${markerX.toFixed(2)}" y1="0" x2="${markerX.toFixed(2)}" y2="180"></line>
+          <line class="stripe-playhead" x1="${markerX.toFixed(2)}" y1="0" x2="${markerX.toFixed(2)}" y2="180"></line>
+          <circle class="stripe-marker" cx="${markerX.toFixed(2)}" cy="162" r="8"></circle>
+        </svg>
+        <span class="stripe-year-label">${point.year}</span>
+      </div>
       <div class="temperature-years"><span>${values[0].year}</span><span>${middleYear}</span><span>${values[values.length - 1].year}</span></div>
     </section>
   `;
@@ -358,8 +363,6 @@ function updateDataPanel(data: Dataset): void {
     : 'Each stripe is one real annual global temperature anomaly. Cooler and warmer colors show values below and above NASA’s 1951–1980 reference.';
   dataName.textContent = data.metadata.title;
   dataCitation.textContent = data.metadata.citation;
-  sourceLink.href = data.metadata.url;
-  sourceLink.textContent = 'Open the dataset page';
   sourceDataLink.href = data.metadata.dataUrl;
   sourceDataLink.textContent = data.metadata.dataUrl;
   sourceDataLink.setAttribute('aria-label', `Open source data for ${data.metadata.title}`);
@@ -590,9 +593,21 @@ function initializeDataset(data: Dataset): void {
   rangeEnd.textContent = String(data.values[data.values.length - 1].year);
   sceneRecord.textContent = `${data.values.length} YEARLY OBSERVATIONS · ${data.values[0].year}–${data.values[data.values.length - 1].year}`;
   visualTitle.textContent = isArctic ? 'September ice extent' : 'A stripe for every year';
-  visualLegend.textContent = isArctic
-    ? `Broken ring · 1981–2010 mean ${baseline.toFixed(2)} M km²`
-    : 'Blue · below reference     Red · above reference';
+  visualLegend.replaceChildren();
+  visualLegend.classList.toggle('temperature-legend', !isArctic);
+  if (isArctic) {
+    visualLegend.textContent = `Broken ring · 1981–2010 mean ${baseline.toFixed(2)} M km²`;
+  } else {
+    for (const [label, colorClass] of [['Blue · below reference', 'legend-swatch-blue'], ['Red · above reference', 'legend-swatch-red']]) {
+      const item = document.createElement('span');
+      item.className = 'legend-item';
+      const swatch = document.createElement('span');
+      swatch.className = `legend-swatch ${colorClass}`;
+      swatch.setAttribute('aria-hidden', 'true');
+      item.append(swatch, document.createTextNode(label));
+      visualLegend.append(item);
+    }
+  }
   updateDataPanel(data);
   updateMomentButtons(data);
   updateReadout(false);
