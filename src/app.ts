@@ -42,6 +42,35 @@ app.innerHTML = `
         <p id="scene-record" class="scene-record">LOADING OBSERVATIONS</p>
       </div>
 
+      <div class="transport">
+        <div class="transport-main">
+          <button id="play-button" class="button button-play" type="button" aria-label="Play from the selected year" aria-pressed="false" disabled>
+            <span class="play-icon" aria-hidden="true"></span><span id="play-label">Play</span>
+          </button>
+          <label class="speed-control">Tempo
+            <select id="speed-select" aria-label="Playback speed">
+              <option value="1000">Slow</option>
+              <option value="650" selected>Steady</option>
+              <option value="350">Quick</option>
+            </select>
+          </label>
+          <label class="compare-toggle"><input id="compare-toggle" type="checkbox" disabled /> <span>Compare two years</span></label>
+        </div>
+        <p id="live-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true">Loading verified NASA data…</p>
+      </div>
+
+      <div id="compare-controls" class="compare-controls" hidden>
+        <div class="compare-heading">
+          <div>
+            <span class="ear-label">LEFT EAR</span>
+            <span class="duel-mark" aria-hidden="true">↔</span>
+            <span class="ear-label">RIGHT EAR</span>
+          </div>
+          <label for="compare-slider">Right year <output id="compare-year-output">—</output></label>
+        </div>
+        <input id="compare-slider" type="range" min="0" max="0" step="1" value="0" disabled />
+      </div>
+
       <div class="visual-heading">
         <p id="visual-title">The record at a glance</p>
         <p id="visual-legend" class="visual-legend"></p>
@@ -74,35 +103,6 @@ app.innerHTML = `
       </div>
 
       <div id="moment-controls" class="moment-controls" aria-label="Listen to a notable year"></div>
-
-      <div class="transport">
-        <div class="transport-main">
-          <button id="play-button" class="button button-play" type="button" aria-label="Play from the selected year" aria-pressed="false" disabled>
-            <span class="play-icon" aria-hidden="true"></span><span id="play-label">Play</span>
-          </button>
-          <label class="speed-control">Tempo
-            <select id="speed-select" aria-label="Playback speed">
-              <option value="1000">Slow</option>
-              <option value="650" selected>Steady</option>
-              <option value="350">Quick</option>
-            </select>
-          </label>
-          <label class="compare-toggle"><input id="compare-toggle" type="checkbox" disabled /> <span>Compare two years</span></label>
-        </div>
-        <p id="live-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true">Loading verified NASA data…</p>
-      </div>
-
-      <div id="compare-controls" class="compare-controls" hidden>
-        <div class="compare-heading">
-          <div>
-            <span class="ear-label">LEFT EAR</span>
-            <span class="duel-mark" aria-hidden="true">↔</span>
-            <span class="ear-label">RIGHT EAR</span>
-          </div>
-          <label for="compare-slider">Right year <output id="compare-year-output">—</output></label>
-        </div>
-        <input id="compare-slider" type="range" min="0" max="0" step="1" value="0" disabled />
-      </div>
 
       <div class="instrument-foot">
         <p id="scene-description" class="scene-description">Waiting for the data series.</p>
@@ -260,6 +260,7 @@ function renderTemperaturePanel(index: number, side: string, label: string): str
   }).join('');
   const markerX = (index + 0.5) * stripeWidth;
   const point = values[index];
+  const middleYear = values[Math.floor((values.length - 1) / 2)].year;
   const value = formatValue(point.value);
 
   return `
@@ -270,6 +271,7 @@ function renderTemperaturePanel(index: number, side: string, label: string): str
         <line class="stripe-playhead" x1="${markerX.toFixed(2)}" y1="0" x2="${markerX.toFixed(2)}" y2="180"></line>
         <circle class="stripe-marker" cx="${markerX.toFixed(2)}" cy="162" r="8"></circle>
       </svg>
+      <div class="temperature-years"><span>${values[0].year}</span><span>${middleYear}</span><span>${values[values.length - 1].year}</span></div>
     </section>
   `;
 }
