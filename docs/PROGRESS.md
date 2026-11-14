@@ -1,9 +1,9 @@
 # Progress
 
 ## Resume notes
-- Current task: 7 of 10 — validate compare mode with stereo separation.
-- Half-done: compare controls and audio channels are implemented; verify a comparison session and document its scope.
-- Next command: exercise compare mode with two selected years, confirm the left/right panners are used, then run all checks.
+- Current task: 8 of 10 — polish responsive layout and loading/error states.
+- Half-done: the app is polished for the primary dataset; verify mobile layout and static preview paths.
+- Next command: run `npm run preview` and verify the built app, data fetch, and in-app documentation links at desktop and mobile widths.
 - Failing test: none.
 
 ## Task log
@@ -24,3 +24,5 @@
 - Task 5 validation: build, tests (9), lint passed. Browser verification confirmed the bundled 1880-2025 series renders, compare controls appear, playback starts only after clicking Play, and the initial page has no browser warnings/errors. Tone was changed to a dynamic import after the Play gesture to prevent an AudioContext from being created on page load.
 - Task 6 complete: verified accessible names/roles in the browser accessibility snapshot, native slider ArrowRight stepping and live announcements, Space play/pause and M mute shortcuts, visible focus indication, and `prefers-reduced-motion` CSS behavior. No axe or extra browser dependency was added; the live Playwright browser checks covered the interaction paths.
 - Task 6 validation: build, tests (9), lint passed. Browser checks showed `aria-live="polite"`, reduced-motion transition duration of 0.00001s, visible focus outline, and no console warnings/errors after a fresh load.
+- Task 7 complete: compare mode selects two years and schedules their mappings on separate Tone channels at -0.78 (left) and +0.78 (right); it does not pretend the blocked scenes are available.
+- Task 7 validation: added a focused audio-engine test for opposing pan values. Build, tests (10), and lint passed; browser playback with compare enabled produced no console errors or warnings.
