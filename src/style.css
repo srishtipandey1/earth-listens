@@ -288,8 +288,7 @@ summary {
 }
 
 .chart-labels span:nth-child(2) {
-  position: absolute;
-  left: 27%;
+  margin-left: auto;
 }
 
 .data-chart {

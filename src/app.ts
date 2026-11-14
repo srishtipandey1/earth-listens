@@ -46,7 +46,7 @@ app.innerHTML = `
 
       <div id="data-error" class="error-banner" role="alert" hidden></div>
       <div class="chart-wrap">
-        <div class="chart-labels" aria-hidden="true"><span>WARMER</span><span>REFERENCE</span><span>COOLER</span></div>
+        <div class="chart-labels" aria-hidden="true"><span>ANNUAL ANOMALY</span><span>REFERENCE 0°C</span></div>
         <svg id="data-chart" class="data-chart" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true"></svg>
         <div class="chart-years" aria-hidden="true"><span id="chart-start">—</span><span id="chart-end">—</span></div>
       </div>

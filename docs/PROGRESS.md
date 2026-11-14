@@ -1,9 +1,9 @@
 # Progress
 
 ## Resume notes
-- Current task: 9 of 10 — complete README, AI-use disclosure, and demo script.
-- Half-done: README, AI-use, and demo documentation are still starter/absent.
-- Next command: write only claims supported by the checked dataset and browser/test evidence; include clear caveats for unavailable scenes and the Arctic opening requirement.
+- Current task: 10 of 10 — final build, test, lint, preview, and honest handoff.
+- Half-done: all code/docs are in place; rerun final checks, preview static output, inspect git status, and write final summary with morning checklist.
+- Next command: `npm run build; npm test; npm run lint; npm run preview`
 - Failing test: none.
 
 ## Task log
@@ -28,3 +28,5 @@
 - Task 7 validation: added a focused audio-engine test for opposing pan values. Build, tests (10), and lint passed; browser playback with compare enabled produced no console errors or warnings.
 - Task 8 complete: responsive layout, disabled/unavailable scene state, loading status, HTTP/schema error banner, and empty-data validation are in place. Corrected a 390px mobile horizontal overflow caused by the scene select's intrinsic width.
 - Task 8 validation: build, tests (10), and lint passed. Static `npm run preview` loaded the actual dataset and embedded docs; desktop and 390px layouts had no horizontal overflow, and preview console had no errors or warnings.
+- Task 9 complete: wrote a README with setup, data sourcing/terms, mapping and limitations; replaced AI-use placeholders with an accurate work/verification record; and added a timed 90-second demo that starts in silence and explicitly discloses the unavailable Arctic scene before demonstrating global temperature.
+- Task 9 validation: build, tests (10), and lint passed. The README and demo do not claim the missing scenes are implemented. The exact Arctic-first demo acceptance remains blocked and is recorded in known issues.
