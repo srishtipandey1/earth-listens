@@ -5,6 +5,7 @@
 ### What works
 
 - Static Vite/TypeScript application with real NASA GISS global annual temperature (1880-2025) and NSIDC Arctic September extent (1979-2026) data, attribution, access dates, units, terms, and processing metadata.
+- Vite production assets use `/earth-listens/`, and a GitHub Actions workflow builds and deploys `dist/` to Pages on pushes to `main`. Production preview verified page assets and both datasets at that path; the app has not been pushed or published.
 - Deterministic sonification mapping with unit tests; lazy Tone.js playback, limiter, mute, keyboard controls, status announcements, responsive chart, and two-period stereo compare.
 - Arctic scene uses the supplied 48-row NSIDC series, a computed 1981-2010 mean baseline of 6.413333 million square kilometers, and one-sided tension that rises as extent falls below that reference.
 - Visual refresh: brighter planetary artwork, a data-filled chart, clearer play controls, and a subtle playback meter that respects reduced-motion settings.
@@ -72,3 +73,4 @@
 - Added loader tests plus Arctic bounds/direction/baseline/2012-vs-1979 tests. Updated README, sonification notes, demo, AI-use record, and known issues. No dependencies added.
 - Arctic validation: `npm run data:sea-ice`, build, 14 tests, lint, and static preview passed. Browser verification confirmed temperature/Arctic switching, the 2012 low-extent announcement, the 1979 calm announcement, and the complete scene name at 390px.
 - NSIDC URL follow-up: recorded the supplied `https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/` exactly in the generator and JSON metadata, added a visible source-data link in the About panel, and updated README, AI-use, known issues, and progress notes. The generator, build, 14 tests, and lint passed; browser checks confirmed the About-panel link text and target match the supplied URL. No values or dependencies changed.
+- GitHub Pages deployment: set Vite's production base to `/earth-listens/` and added a `main`-push Actions workflow that installs dependencies, tests, lints, builds, and deploys `dist/`. Build output and production preview confirmed HTML, JS, CSS, and both dataset URLs return successfully under the repository path; Arctic scene switching loads its JSON. Build, all 14 tests, and lint pass.

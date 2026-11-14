@@ -27,6 +27,10 @@ npm test
 npm run lint
 ```
 
+## Deploy to GitHub Pages
+
+The GitHub Actions workflow deploys `dist/` to Pages after each push to `main`. In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. The Vite base path is `/earth-listens/` for this repository; use that path when opening the published site.
+
 To re-download and process the GISTEMP CSV into `public/data/global-temperature.json`:
 
 ```sh
