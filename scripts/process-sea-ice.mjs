@@ -8,7 +8,7 @@ const projectDirectory = resolve(scriptDirectory, '..');
 const inputPath = resolve(projectDirectory, 'data-raw', 'N_09_extent_v4.0.csv');
 const outputDirectory = resolve(projectDirectory, 'public', 'data');
 const datasetUrl = 'https://nsidc.org/data/g02135/versions/4';
-const dataUrl = 'https://noaadata.apps.nsidc.org/NOAA/G02135/';
+const dataUrl = 'https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/';
 const userGuideUrl = 'https://nsidc.org/sites/default/files/documents/user-guide/g02135-v004-userguide.pdf';
 const citationPolicyUrl = 'https://nsidc.org/about/data-use-and-copyright';
 const firstYear = 1979;
@@ -73,7 +73,7 @@ const dataset = {
     licenseUrl: citationPolicyUrl,
     citation: 'Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., Windnagel, A. K. & Stafford, T. (2025). Sea Ice Index (G02135, Version 4). Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.7265/a98x-0f50. Accessed 2026-11-14.',
     processing: [
-      'Read the human-supplied local file data-raw/N_09_extent_v4.0.csv; no remote file URL was supplied.',
+      `Read the human-supplied local file data-raw/N_09_extent_v4.0.csv, downloaded from ${dataUrl} on 2026-11-14.`,
       'Select the September (mo=9) Northern Hemisphere (region=N) rows and the extent column; retain the numeric values without interpolation, rounding, or other modification.',
       `Validate exactly ${expectedCount} consecutive annual values from ${firstYear} through ${lastYear}.`,
       `The Version 4 user guide (${userGuideUrl}) states that source_dataset identifies the input product: NSIDC-0051 through 2024 and NSIDC-0803 (AMSR2) from 2025. It says the change was driven by expected loss of SSMIS access and observed SSMIS degradation; pre-2025 Version 4 data are copies of Version 3.`,

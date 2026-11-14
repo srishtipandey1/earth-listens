@@ -41,7 +41,7 @@ The Arctic data file was supplied locally as `data-raw/N_09_extent_v4.0.csv`. Va
 npm run data:sea-ice
 ```
 
-The processor checks the September/Northern Hemisphere subset, validates 48 consecutive years (1979-2026) and the documented 2025 input-source transition, and copies the `extent` numbers without interpolation or rounding. The exact file-level download URL was not included with the supplied file; the JSON metadata cites the verified NSIDC product page and official data access root instead.
+The processor checks the September/Northern Hemisphere subset, validates 48 consecutive years (1979-2026) and the documented 2025 input-source transition, and copies the `extent` numbers without interpolation or rounding. The supplied download URL is the [NSIDC Northern Hemisphere monthly data directory](https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/); the exact URL is recorded in the JSON metadata and shown in the About the data panel.
 
 ## Use the instrument
 
@@ -69,7 +69,7 @@ The data panel links to the NASA source and displays citation and use informatio
 ### Bundled: Arctic sea ice
 
 - Source: [NSIDC Sea Ice Index, Version 4 (G02135)](https://nsidc.org/data/g02135/versions/4)
-- Official data access location: [NSIDC NOAA/G02135 HTTPS directory](https://noaadata.apps.nsidc.org/NOAA/G02135/)
+- Download URL supplied by the human: [NSIDC Northern Hemisphere monthly data directory](https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/)
 - User guide: [Sea Ice Index, Version 4 User Guide](https://nsidc.org/sites/default/files/documents/user-guide/g02135-v004-userguide.pdf)
 - Citation: Fetterer, F., Knowles, K., Meier, W. N., Savoie, M., Windnagel, A. K. & Stafford, T. (2025). *Sea Ice Index* (G02135, Version 4). Boulder, Colorado USA. National Snow and Ice Data Center. [https://doi.org/10.7265/a98x-0f50](https://doi.org/10.7265/a98x-0f50). Accessed 2026-11-14.
 - Accessed: 2026-11-14.
@@ -89,7 +89,7 @@ Values are normalized against each scene's observed range. Pitch follows a three
 ## Limitations
 
 - Global temperature and Arctic sea ice are playable; Amazon NDVI is not. The original three-scene acceptance criterion remains incomplete; see [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md).
-- The NSIDC source file was supplied locally without the exact page URL used for download. Its metadata instead records the verified NSIDC product page and official data access root.
+- The NSIDC source file was supplied locally; its exact provided download URL is the Northern Hemisphere monthly data directory linked above and in the About the data panel.
 - The Sea Ice Index changes input products in 2025, as described above and in the in-app data panel. This source transition should be considered when interpreting changes in extent.
 - The sonification is an educational representation, not a scientific visualization or a substitute for the underlying data.
 - The output has been checked in automated builds and browser playback, but a human has not yet listened and judged timbre, volume, or the 90-second demo.

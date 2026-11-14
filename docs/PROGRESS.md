@@ -14,7 +14,7 @@
 ### What does not work yet
 
 - Amazon NDVI is not bundled or playable; task 2 remains unchecked because the NDVI pipeline/data is still missing.
-- The exact NSIDC file-level download page was not supplied; metadata uses the verified product page and official data access root. Human confirmation is still needed before submission.
+- The supplied NSIDC download URL is the official Northern Hemisphere monthly data directory and is recorded verbatim in metadata and the About the data panel. The local file's download cannot be independently verified.
 - The three-scene criterion remains unmet; see `docs/KNOWN_ISSUES.md`.
 - The full npm audit reports 7 moderate development-tooling advisories; runtime-only audit is clean.
 - No human has listened to and approved the sound, independently verified all source terms, or reviewed event-specific AI/submission rules. No project software license has been selected.
@@ -29,14 +29,14 @@
 ### Morning verification checklist
 
 - [ ] Listen to both available scenes and stereo comparison; check loudness, timbre, and whether the Arctic baseline/low-extent years sound as intended.
-- [ ] Confirm the exact NSIDC download page, citation/terms, source transition, and attribution; verify current MODIS access and terms before adding NDVI.
+- [ ] Confirm the supplied NSIDC download directory, citation/terms, source transition, and attribution; verify current MODIS access and terms before adding NDVI.
 - [ ] Check the NASA Space Apps event's AI-use and submission rules and choose/verify a project software license.
 - [ ] On a fresh machine, run `npm ci`, `npm run build`, `npm test`, `npm run lint`, and `npm run preview`.
 - [ ] Review keyboard/screen-reader behavior and the demo timing with a human.
 
 ## Resume notes
-- Current task: Arctic sea-ice scene — complete.
-- Half-done: no Arctic implementation remains; Amazon NDVI and human verification remain follow-ups.
+- Current task: record supplied NSIDC data URL — complete.
+- Half-done: no URL metadata/UI changes remain; Amazon NDVI and human verification remain follow-ups.
 - Exact next command for verification: `npm run build; npm test; npm run lint; npm run preview`
 - Failing test: none.
 
@@ -71,3 +71,4 @@
 - Arctic mapping baseline: mean of the supplied 1981-2010 September extent values is 6.413333 million square kilometers. Values below it increase tension; values at or above it remain calm. At 390px, the entire “Arctic sea ice — September extent” picker label fits after reducing only its mobile type size.
 - Added loader tests plus Arctic bounds/direction/baseline/2012-vs-1979 tests. Updated README, sonification notes, demo, AI-use record, and known issues. No dependencies added.
 - Arctic validation: `npm run data:sea-ice`, build, 14 tests, lint, and static preview passed. Browser verification confirmed temperature/Arctic switching, the 2012 low-extent announcement, the 1979 calm announcement, and the complete scene name at 390px.
+- NSIDC URL follow-up: recorded the supplied `https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/` exactly in the generator and JSON metadata, added a visible source-data link in the About panel, and updated README, AI-use, known issues, and progress notes. The generator, build, 14 tests, and lint passed; browser checks confirmed the About-panel link text and target match the supplied URL. No values or dependencies changed.

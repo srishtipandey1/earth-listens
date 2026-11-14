@@ -8,7 +8,7 @@
 
 ## Arctic source provenance and 2025 input transition
 
-- The human supplied `data-raw/N_09_extent_v4.0.csv`, but the exact page used to download this individual file was not included. Dataset metadata therefore cites the verified [NSIDC Sea Ice Index Version 4 product page](https://nsidc.org/data/g02135/versions/4) and its official data access root, rather than inventing a file URL. Confirm the exact download page before submission.
+- The human supplied `data-raw/N_09_extent_v4.0.csv` and its download URL, the [NSIDC Northern Hemisphere monthly data directory](https://noaadata.apps.nsidc.org/NOAA/G02135/north/monthly/data/). The exact URL is stored in dataset metadata and shown in the About the data panel. The processor cannot independently verify that the local file was downloaded from that directory.
 - The [official Version 4 user guide](https://nsidc.org/sites/default/files/documents/user-guide/g02135-v004-userguide.pdf) states that monthly `source_dataset` changes from NSIDC-0051 through 2024 to AMSR2/NSIDC-0803 from 2025. It attributes this to expected loss of SSMIS access and observed degradation of SSMIS data; pre-2025 Version 4 values are copies of Version 3. The app preserves and explains this transition; users should consider it when interpreting the time series.
 - The processor verifies 48 consecutive September/Northern Hemisphere rows for 1979-2026 and the expected source IDs, but cannot independently verify the human's original acquisition.
 

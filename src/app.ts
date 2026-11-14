@@ -109,6 +109,7 @@ app.innerHTML = `
         <div class="data-details">
           <p id="data-source">NASA GISS / GISTEMP</p>
           <a id="source-link" href="https://data.giss.nasa.gov/gistemp/" target="_blank" rel="noopener noreferrer">Open the source dataset</a>
+          <a id="source-data-link" href="https://data.giss.nasa.gov/gistemp/" target="_blank" rel="noopener noreferrer">Open the source data</a>
           <p id="data-terms"></p>
           <p id="data-citation" class="citation"></p>
           <p id="data-processing" class="citation"></p>
@@ -170,6 +171,7 @@ const rangeStart = requiredElement<HTMLSpanElement>('#range-start');
 const rangeEnd = requiredElement<HTMLSpanElement>('#range-end');
 const dataSource = requiredElement<HTMLParagraphElement>('#data-source');
 const sourceLink = requiredElement<HTMLAnchorElement>('#source-link');
+const sourceDataLink = requiredElement<HTMLAnchorElement>('#source-data-link');
 const dataTerms = requiredElement<HTMLParagraphElement>('#data-terms');
 const dataCitation = requiredElement<HTMLParagraphElement>('#data-citation');
 const dataProcessing = requiredElement<HTMLParagraphElement>('#data-processing');
@@ -276,6 +278,9 @@ function updateDataPanel(data: Dataset): void {
   dataSource.textContent = data.metadata.source;
   sourceLink.href = data.metadata.url;
   sourceLink.textContent = `${data.metadata.title} (source page)`;
+  sourceDataLink.href = data.metadata.dataUrl;
+  sourceDataLink.textContent = data.metadata.dataUrl;
+  sourceDataLink.setAttribute('aria-label', `Open source data URL for ${data.metadata.title}`);
   dataTerms.textContent = `${data.metadata.units}. ${data.metadata.license} Accessed ${data.metadata.accessed}.`;
   dataCitation.textContent = data.metadata.citation;
   dataProcessing.textContent = data.metadata.processing.join(' ');
