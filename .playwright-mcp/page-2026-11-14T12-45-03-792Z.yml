@@ -1,0 +1,86 @@
+- main [ref=f7e3]:
+  - generic [ref=f7e4]:
+    - link "Earth Listens home" [ref=f7e5] [cursor=pointer]:
+      - /url: "#"
+      - text: EARTH LISTENS
+    - generic [ref=f7e6]: NASA EARTH DATA, MADE AUDIBLE
+    - button "Mute audio" [ref=f7e7] [cursor=pointer]: Mute
+  - region "Earth, in another key." [ref=f7e8]:
+    - generic [ref=f7e9]:
+      - paragraph [ref=f7e10]: AN INSTRUMENT FOR THE PLANET
+      - heading [level=1] [ref=f7e11]:
+        - text: Earth,
+        - emphasis [ref=f7e12]: in another key.
+      - paragraph [ref=f7e13]: Move through NASA's record of a changing world. Listen for the patterns inside the data.
+    - generic [ref=f7e18]: 1951—1980 REFERENCE
+  - region "Earth data sound instrument" [ref=f7e19]:
+    - generic [ref=f7e20]:
+      - generic [ref=f7e21]:
+        - paragraph [ref=f7e22]: 01 / CHOOSE A SCENE
+        - generic [ref=f7e23]: Earth data scene
+        - combobox "Earth data scene" [ref=f7e24]:
+          - option "Global temperature anomaly" [selected]
+          - option "Arctic sea ice — data unavailable" [disabled]
+          - option "Amazon vegetation — data unavailable" [disabled]
+      - generic [ref=f7e25]: HISTORICAL RECORD
+    - generic [ref=f7e27]:
+      - generic [aria-hidden] [ref=f7e28]:
+        - text: WARMER
+        - generic [ref=f7e29]: REFERENCE
+        - text: COOLER
+      - generic [aria-hidden] [ref=f7e33]:
+        - generic [ref=f7e34]: "1880"
+        - generic [ref=f7e35]: "2025"
+    - generic [ref=f7e36]:
+      - generic [ref=f7e37]:
+        - text: YEAR
+        - status [ref=f7e38]: "1880"
+      - generic [ref=f7e39]:
+        - generic [ref=f7e40]: Select year
+        - slider "Select year" [ref=f7e41] [cursor=pointer]: "0"
+        - generic [aria-hidden] [ref=f7e42]:
+          - generic [ref=f7e43]: "1880"
+          - generic [ref=f7e44]: "2025"
+      - generic [ref=f7e45]:
+        - status [ref=f7e46]: "-0.18°"
+        - generic [ref=f7e47]: degrees Celsius relative to the 1951-1980 mean
+    - generic [ref=f7e48]:
+      - generic [ref=f7e49]:
+        - button "Play" [ref=f7e50] [cursor=pointer]: ▶ Play
+        - generic [ref=f7e51]:
+          - text: SPEED
+          - combobox "Playback speed" [ref=f7e52]:
+            - option "Slow"
+            - option "Normal" [selected]
+            - option "Fast"
+        - generic [ref=f7e53] [cursor=pointer]:
+          - checkbox "Compare periods" [ref=f7e54]
+          - generic [ref=f7e55]: Compare periods
+      - status [ref=f7e56]: NASA GISS Global-mean Annual Temperature Anomaly loaded, 146 annual observations.
+    - generic [ref=f7e57]:
+      - paragraph [ref=f7e58]: "Year 1880: global temperature anomaly 0.18 degrees Celsius below the 1951–1980 mean; sound is calm."
+      - paragraph [ref=f7e59]: ← / → step through years · Space play / pause · M mute
+  - region "About this experience" [ref=f7e60]:
+    - group [ref=f7e61]:
+      - generic "About the data" [ref=f7e62] [cursor=pointer]:
+        - text: About the data
+        - generic [aria-hidden] [ref=f7e63]: +
+      - generic [ref=f7e64]:
+        - paragraph [ref=f7e65]: NASA Goddard Institute for Space Studies, GISTEMP v4
+        - link "NASA GISS Global-mean Annual Temperature Anomaly (source page)" [ref=f7e66] [cursor=pointer]:
+          - /url: https://data.giss.nasa.gov/gistemp/data_v4.html
+        - paragraph [ref=f7e67]: degrees Celsius relative to the 1951-1980 mean. NASA Earth science data; cite NASA GISS/GISTEMP. No dataset-specific restriction is stated on the source page. See NASA ESDIS data-use guidance. Accessed 2026-11-14.
+        - paragraph [ref=f7e68]: "GISTEMP Team, 2026: GISS Surface Temperature Analysis (GISTEMP), version 4. NASA Goddard Institute for Space Studies. Cite the dataset page with the access date."
+        - paragraph [ref=f7e69]:
+          - strong [ref=f7e70]: "Other scenes:"
+          - text: Arctic sea ice and monthly Amazon NDVI are not bundled because their official data could not be downloaded and verified in this environment.
+    - generic [ref=f7e71]:
+      - paragraph [ref=f7e72]: THE SCORE
+      - paragraph [ref=f7e73]: Pitch follows the anomaly. Distance from the baseline adds tension. Faster change adds rhythm and a fine-grained noise layer.
+      - link "Read the one-minute mapping notes" [ref=f7e74] [cursor=pointer]:
+        - /url: ./SONIFICATION.md
+        - text: Read the one-minute mapping notes ↗
+      - button "How we used AI" [ref=f7e75] [cursor=pointer]: How we used AI ↗
+  - generic [ref=f7e76]:
+    - generic [ref=f7e77]: EARTH LISTENS / NASA SPACE APPS CHALLENGE 2026
+    - generic [ref=f7e78]: DATA FIRST. NO SOUND UNTIL YOU PRESS PLAY.

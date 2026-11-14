@@ -1,18 +1,19 @@
-import * as Tone from 'tone';
+import type * as ToneTypes from 'tone';
 import type { SonificationMapping } from './sonification';
 
 interface VoiceChannel {
-  filter: Tone.Filter;
-  lead: Tone.Synth;
-  tensionVoice: Tone.Synth;
-  noise: Tone.Noise;
-  noiseGain: Tone.Gain;
-  panner: Tone.Panner;
+  filter: ToneTypes.Filter;
+  lead: ToneTypes.Synth;
+  tensionVoice: ToneTypes.Synth;
+  noise: ToneTypes.Noise;
+  noiseGain: ToneTypes.Gain;
+  panner: ToneTypes.Panner;
 }
 
 interface AudioGraph {
-  limiter: Tone.Limiter;
-  masterGain: Tone.Gain;
+  tone: typeof import('tone');
+  limiter: ToneTypes.Limiter;
+  masterGain: ToneTypes.Gain;
   channels: Map<string, VoiceChannel>;
 }
 
@@ -51,17 +52,19 @@ export class AudioEngine {
   }
 
   private async initialize(): Promise<void> {
+    const Tone = await import('tone');
     await Tone.start();
 
     const masterGain = new Tone.Gain(this.muted ? 0 : MASTER_GAIN);
     const limiter = new Tone.Limiter(-1);
     masterGain.connect(limiter);
     limiter.toDestination();
-    this.graph = { masterGain, limiter, channels: new Map() };
+    this.graph = { tone: Tone, masterGain, limiter, channels: new Map() };
   }
 
   play(mapping: SonificationMapping, options: PlayOptions = {}): void {
     const graph = this.requireGraph();
+    const Tone = graph.tone;
     const channelName = options.channel ?? 'main';
     const duration = options.duration ?? 0.22;
 
@@ -70,7 +73,7 @@ export class AudioEngine {
     }
 
     const channel = this.getChannel(graph, channelName, clampPan(options.pan ?? 0));
-    const now = Tone.now();
+    const now = graph.tone.now();
     const frequency = Tone.Frequency(mapping.midi, 'midi').toFrequency();
 
     channel.panner.pan.rampTo(clampPan(options.pan ?? 0), 0.04, now);
@@ -103,7 +106,7 @@ export class AudioEngine {
       return;
     }
 
-    const now = Tone.now();
+    const now = this.graph.tone.now();
     for (const channel of this.graph.channels.values()) {
       channel.lead.triggerRelease(now);
       channel.tensionVoice.triggerRelease(now);
@@ -147,6 +150,7 @@ export class AudioEngine {
       return existing;
     }
 
+    const Tone = graph.tone;
     const filter = new Tone.Filter(700, 'lowpass');
     const panner = new Tone.Panner(pan);
     const lead = new Tone.Synth({
