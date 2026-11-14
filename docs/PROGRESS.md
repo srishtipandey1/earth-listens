@@ -1,9 +1,9 @@
 # Progress
 
 ## Resume notes
-- Current task: 4 of 10 — implement the Tone.js audio engine.
-- Half-done: mapping and data validation are complete; the audio engine and UI integration remain.
-- Next command: add a lazy audio engine that constructs Tone nodes only after the first playback gesture, and test its lifecycle where feasible.
+- Current task: 5 of 10 — build scene picker, controls, visual layer, and data panel.
+- Half-done: core data, mapping, and audio modules are ready; the starter UI has not yet been replaced.
+- Next command: implement the application UI around the available temperature dataset, making unavailable data scenes explicit rather than substituting values.
 - Failing test: none.
 
 ## Task log
@@ -18,3 +18,5 @@
 - Dependency changes: no task 2 dependencies added. A generated TypeScript build-info file from task 1 is now ignored and will be removed from version control.
 - Task 3 complete: added runtime dataset validation/loading, bounded normalization, pentatonic pitch mapping, baseline tension, change-driven rhythm/texture, and `docs/SONIFICATION.md`.
 - Task 3 validation: `npm run build`, `npm test` (8 tests), and `npm run lint` passed.
+- Task 4 complete: added a lazy Tone.js engine with two synth voices, tension filter/dissonance, gated pink-noise texture, compare-ready per-channel panning, mute gain, and a master limiter. Tone's audio context and nodes are created only after `start()` is called by the UI; `play()` before that rejects with a clear error.
+- Task 4 validation: `npm run build`, `npm test` (9 tests, including the gesture gate), and `npm run lint` passed. A type mismatch from Tone's frequency wrapper was fixed by passing converted Hz values.
