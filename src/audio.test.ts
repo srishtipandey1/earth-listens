@@ -92,6 +92,7 @@ describe('AudioEngine gesture gate', () => {
 
     expect(Tone.start).not.toHaveBeenCalled();
     expect(() => engine.play(silentMapping)).toThrow('Call start() from a user gesture first');
+    expect(() => engine.createRecordingStream()).toThrow('Call start() from a user gesture first');
     expect(Tone.start).not.toHaveBeenCalled();
   });
 

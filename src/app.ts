@@ -2,6 +2,7 @@ import aiUse from '../docs/AI_USE.md?raw';
 import sonificationNotes from '../docs/SONIFICATION.md?raw';
 import { AudioEngine } from './audio';
 import { loadDataset, type Dataset } from './data';
+import { findYearIndex, shouldAnnounceProgress } from './life-song';
 import { averageForPeriod, createMappingOptions, mapSeriesPoint } from './sonification';
 import { iceCapEdgePath, iceCapRadius, iceFloeCrackPaths, temperatureStripeColor } from './visuals';
 
@@ -10,6 +11,35 @@ const app = document.querySelector<HTMLDivElement>('#app');
 if (!app) {
   throw new Error('Application root element is missing.');
 }
+
+interface RecordingFormat {
+  mimeType?: string;
+  label: string;
+  extension: string;
+}
+
+interface RecordingTake {
+  recorder: MediaRecorder;
+  chunks: Blob[];
+  format: RecordingFormat;
+  startYear: number;
+  endYear: number;
+  completed: boolean;
+  failed: boolean;
+}
+
+const recordingFormats: RecordingFormat[] = [
+  { mimeType: 'audio/webm;codecs=opus', label: 'WebM audio (Opus)', extension: 'webm' },
+  { mimeType: 'audio/ogg;codecs=opus', label: 'Ogg audio (Opus)', extension: 'ogg' },
+  { mimeType: 'audio/mp4;codecs=mp4a.40.2', label: 'MP4 audio (AAC)', extension: 'm4a' },
+];
+const supportedRecordingFormat = typeof MediaRecorder !== 'undefined'
+  && typeof MediaRecorder.isTypeSupported === 'function'
+  ? recordingFormats.find(({ mimeType }) => MediaRecorder.isTypeSupported(mimeType ?? ''))
+  : undefined;
+const recordingFormat = typeof MediaRecorder === 'undefined'
+  ? null
+  : supportedRecordingFormat ?? { label: 'Browser-default audio format', extension: 'audio' };
 
 app.innerHTML = `
   <main class="page">
@@ -43,6 +73,24 @@ app.innerHTML = `
         </div>
         <p id="scene-record" class="scene-record">LOADING OBSERVATIONS</p>
       </div>
+
+      <section class="life-song" aria-labelledby="life-song-title">
+        <div class="life-song-intro">
+          <p class="eyebrow">YOUR PERSONAL EARTH SONG</p>
+          <h2 id="life-song-title">Earth song of your life</h2>
+          <p>Start at a birth year and follow the selected Earth record to its latest year.</p>
+        </div>
+        <div class="life-song-controls">
+          <label class="life-song-field" for="birth-year">Birth year
+            <input id="birth-year" type="number" step="1" inputmode="numeric" required disabled />
+          </label>
+          <button id="example-year" class="button button-outline" type="button" disabled>Use example year</button>
+          <button id="play-life-song" class="button button-play" type="button" disabled>Play my Earth song</button>
+          <button id="save-life-song" class="button button-outline" type="button" disabled>Save my song</button>
+        </div>
+        <p id="life-song-format" class="life-song-format">Audio format: checking browser support.</p>
+        <p id="life-song-state" class="life-song-state"></p>
+      </section>
 
       <div class="transport">
         <div class="transport-main">
@@ -167,6 +215,12 @@ function requiredElement<T extends Element>(selector: string): T {
 const instrument = requiredElement<HTMLElement>('#instrument');
 const sceneSelect = requiredElement<HTMLSelectElement>('#scene-select');
 const sceneRecord = requiredElement<HTMLParagraphElement>('#scene-record');
+const birthYearInput = requiredElement<HTMLInputElement>('#birth-year');
+const exampleYearButton = requiredElement<HTMLButtonElement>('#example-year');
+const playLifeSongButton = requiredElement<HTMLButtonElement>('#play-life-song');
+const saveLifeSongButton = requiredElement<HTMLButtonElement>('#save-life-song');
+const lifeSongFormat = requiredElement<HTMLParagraphElement>('#life-song-format');
+const lifeSongState = requiredElement<HTMLParagraphElement>('#life-song-state');
 const visualTitle = requiredElement<HTMLParagraphElement>('#visual-title');
 const visualLegend = requiredElement<HTMLDivElement>('#visual-legend');
 const dataVisual = requiredElement<HTMLDivElement>('#data-visual');
@@ -203,6 +257,10 @@ const dialogContent = requiredElement<HTMLPreElement>('#dialog-content');
 const aiLink = requiredElement<HTMLButtonElement>('#ai-link');
 const mappingLink = requiredElement<HTMLButtonElement>('#mapping-link');
 
+lifeSongFormat.textContent = recordingFormat
+  ? `Recording format: ${recordingFormat.label}. Your browser will download the completed song.`
+  : 'Audio recording is not supported in this browser.';
+
 const audio = new AudioEngine();
 const datasetPaths: Record<string, string> = {
   'global-temperature': 'data/global-temperature.json',
@@ -214,6 +272,11 @@ let mappingOptions: ReturnType<typeof createMappingOptions> | null = null;
 let currentIndex = 0;
 let compareIndex = 0;
 let playing = false;
+let lifeSongMode = false;
+let lifeSongStartIndex = 0;
+let lifeSongStarting = false;
+let recordingFinalizing = false;
+let activeRecording: RecordingTake | null = null;
 let muted = false;
 let timer: number | undefined;
 let pulseTimeout: number | undefined;
@@ -451,21 +514,187 @@ function updateMomentButtons(data: Dataset): void {
   }));
 }
 
+function updateLifeSongControls(): void {
+  const unavailable = !dataset;
+  const busy = playing || lifeSongStarting || recordingFinalizing;
+  birthYearInput.disabled = unavailable || busy;
+  exampleYearButton.disabled = unavailable || busy;
+  playLifeSongButton.disabled = unavailable || busy;
+  saveLifeSongButton.disabled = unavailable || busy || recordingFormat === null;
+  const timelineLocked = lifeSongStarting || (playing && lifeSongMode);
+  compareToggle.disabled = unavailable || timelineLocked;
+  compareSlider.disabled = unavailable || timelineLocked;
+}
+
+function updateLifeSongRange(data: Dataset): void {
+  const firstYear = data.values[0].year;
+  const lastYear = data.values[data.values.length - 1].year;
+  const exampleYear = data.values[Math.floor((data.values.length - 1) / 2)].year;
+  birthYearInput.min = String(firstYear);
+  birthYearInput.max = String(lastYear);
+  birthYearInput.setAttribute('aria-describedby', 'life-song-format life-song-state');
+  exampleYearButton.textContent = `Use ${exampleYear} example`;
+
+  const enteredYear = Number(birthYearInput.value);
+  if (!birthYearInput.value || findYearIndex(data.values, enteredYear) === null) {
+    birthYearInput.value = String(exampleYear);
+  }
+  birthYearInput.setCustomValidity('');
+  updateLifeSongControls();
+}
+
+function getRecordingFormat(take: RecordingTake): RecordingFormat {
+  const mimeType = take.recorder.mimeType.toLowerCase();
+  const match = recordingFormats.find(({ mimeType: preferred }) => (
+    preferred?.split(';')[0] === mimeType.split(';')[0]
+  ));
+  return match ?? {
+    label: mimeType || take.format.label,
+    extension: take.format.extension,
+  };
+}
+
+function finishRecording(take: RecordingTake): void {
+  if (activeRecording !== take) {
+    return;
+  }
+
+  activeRecording = null;
+  recordingFinalizing = false;
+  audio.releaseRecordingStream();
+  updateLifeSongControls();
+
+  if (take.failed || !take.completed) {
+    lifeSongState.textContent = take.failed
+      ? 'The browser could not finish this recording. Try saving the song again.'
+      : 'Recording stopped before the song finished; no file was saved.';
+    liveStatus.textContent = lifeSongState.textContent;
+    return;
+  }
+
+  const format = getRecordingFormat(take);
+  const mimeType = take.recorder.mimeType || take.format.mimeType || '';
+  const blob = new Blob(take.chunks, { type: mimeType });
+  if (blob.size === 0) {
+    lifeSongState.textContent = 'The browser returned an empty recording, so no file was saved. Try again.';
+    liveStatus.textContent = lifeSongState.textContent;
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `earth-song-${take.startYear}-${take.endYear}.${format.extension}`;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  lifeSongFormat.textContent = `Recording format: ${format.label}.`;
+  lifeSongState.textContent = `Saved ${format.label} (${blob.size.toLocaleString()} bytes), ${take.startYear}–${take.endYear}.`;
+  liveStatus.textContent = `Earth song recording saved. ${format.label}, ${blob.size} bytes.`;
+}
+
+function stopRecording(completed: boolean): void {
+  const take = activeRecording;
+  if (!take) {
+    return;
+  }
+
+  take.completed = completed;
+  take.endYear = dataset?.values[currentIndex]?.year ?? take.startYear;
+  recordingFinalizing = true;
+  updateLifeSongControls();
+  if (take.recorder.state === 'inactive') {
+    finishRecording(take);
+    return;
+  }
+
+  try {
+    take.recorder.stop();
+  } catch (error) {
+    take.failed = true;
+    finishRecording(take);
+    const message = error instanceof Error ? error.message : 'Unknown recording error.';
+    lifeSongState.textContent = `Recording could not be stopped: ${message}`;
+    liveStatus.textContent = lifeSongState.textContent;
+  }
+}
+
+function startRecording(startYear: number): void {
+  if (!recordingFormat) {
+    throw new Error('This browser does not support audio recording.');
+  }
+
+  const stream = audio.createRecordingStream();
+  let recorder: MediaRecorder;
+  try {
+    recorder = recordingFormat.mimeType
+      ? new MediaRecorder(stream, { mimeType: recordingFormat.mimeType })
+      : new MediaRecorder(stream);
+  } catch (error) {
+    audio.releaseRecordingStream();
+    throw error;
+  }
+
+  const take: RecordingTake = {
+    recorder,
+    chunks: [],
+    format: recordingFormat,
+    startYear,
+    endYear: startYear,
+    completed: false,
+    failed: false,
+  };
+  activeRecording = take;
+  recorder.addEventListener('dataavailable', (event) => {
+    if (event.data.size > 0) {
+      take.chunks.push(event.data);
+    }
+  });
+  recorder.addEventListener('stop', () => finishRecording(take), { once: true });
+  recorder.addEventListener('error', () => {
+    take.failed = true;
+    const message = 'The browser reported an audio recording error.';
+    lifeSongState.textContent = message;
+    liveStatus.textContent = message;
+    if (playing) {
+      stopPlayback();
+    } else {
+      stopRecording(false);
+    }
+  }, { once: true });
+
+  try {
+    recorder.start();
+  } catch (error) {
+    activeRecording = null;
+    audio.releaseRecordingStream();
+    throw error;
+  }
+
+  lifeSongFormat.textContent = `Recording format: ${getRecordingFormat(take).label}.`;
+}
+
 function updatePlaybackControl(active: boolean): void {
   instrument.classList.toggle('is-playing', active);
   playButton.setAttribute('aria-pressed', String(active));
   playButton.setAttribute('aria-label', active ? 'Pause playback' : 'Play from the selected year');
   playLabel.textContent = active ? 'Pause' : 'Play';
+  yearSlider.disabled = !dataset || (active && lifeSongMode);
+  updateLifeSongControls();
   updateVisual();
 }
 
-function stopPlayback(): void {
+function stopPlayback(completed = false): void {
+  const wasLifeSong = lifeSongMode;
   playing = false;
+  lifeSongMode = false;
   if (timer !== undefined) {
     window.clearInterval(timer);
     timer = undefined;
   }
   audio.stop();
+  if (activeRecording) {
+    stopRecording(completed && wasLifeSong);
+  }
   updatePlaybackControl(false);
 }
 
@@ -509,13 +738,25 @@ function playCurrent(): void {
 
 function advance(): void {
   if (!dataset || currentIndex >= dataset.values.length - 1) {
-    stopPlayback();
-    liveStatus.textContent = 'Reached the latest available year.';
+    const completedLifeSong = lifeSongMode;
+    stopPlayback(true);
+    if (completedLifeSong) {
+      lifeSongState.textContent = 'Your Earth song is complete. The recording download should begin now.';
+      liveStatus.textContent = `Earth song complete. ${sceneDescription.textContent}`;
+    } else {
+      liveStatus.textContent = 'Reached the latest available year.';
+    }
     return;
   }
 
   currentIndex += 1;
-  updateReadout(true);
+  const isLatestYear = currentIndex === dataset.values.length - 1;
+  const announce = !lifeSongMode || (!isLatestYear && shouldAnnounceProgress(
+    lifeSongStartIndex,
+    currentIndex,
+    dataset.values.length - 1,
+  ));
+  updateReadout(announce);
   playCurrent();
 }
 
@@ -529,9 +770,9 @@ function schedulePlayback(): void {
   timer = window.setInterval(advance, milliseconds);
 }
 
-async function startPlayback(): Promise<void> {
+async function startPlayback(): Promise<boolean> {
   if (!dataset) {
-    return;
+    return false;
   }
 
   playButton.disabled = true;
@@ -540,15 +781,84 @@ async function startPlayback(): Promise<void> {
     await audio.start();
     playing = true;
     updatePlaybackControl(true);
-    updateReadout(true);
+    updateReadout(!lifeSongMode);
     schedulePlayback();
     playCurrent();
+    return true;
   } catch (error) {
     errorBanner.hidden = false;
     errorBanner.textContent = error instanceof Error ? `Audio could not start: ${error.message}` : 'Audio could not start.';
     liveStatus.textContent = errorBanner.textContent;
+    stopPlayback();
+    return false;
   } finally {
     playButton.disabled = false;
+  }
+}
+
+async function playLifeSong(save: boolean): Promise<void> {
+  if (!dataset || !mappingOptions) {
+    return;
+  }
+
+  const requestedYear = birthYearInput.valueAsNumber;
+  const startIndex = findYearIndex(dataset.values, requestedYear);
+  if (startIndex === null) {
+    birthYearInput.setCustomValidity(`Enter a whole year from ${dataset.values[0].year} to ${dataset.values[dataset.values.length - 1].year}.`);
+    birthYearInput.reportValidity();
+    lifeSongState.textContent = 'Choose a birth year available in this scene.';
+    return;
+  }
+
+  birthYearInput.setCustomValidity('');
+  if (playing) {
+    stopPlayback();
+  }
+  currentIndex = startIndex;
+  lifeSongStartIndex = startIndex;
+  lifeSongMode = true;
+  lifeSongStarting = true;
+  yearSlider.disabled = true;
+  compareToggle.checked = false;
+  compareControls.hidden = true;
+  errorBanner.hidden = true;
+  updateReadout(false);
+  updateLifeSongControls();
+
+  const startYear = dataset.values[startIndex].year;
+  lifeSongState.textContent = save
+    ? `Recording ${recordingFormat?.label ?? 'audio'} from ${startYear}; the download begins when playback reaches the latest year.`
+    : `Playing from ${startYear} through the latest year in this scene.`;
+
+  try {
+    if (save) {
+      await audio.start();
+      startRecording(startYear);
+    }
+    const started = await startPlayback();
+    if (started) {
+      liveStatus.textContent = `Earth song started. ${sceneDescription.textContent} Progress will be announced every five years.`;
+    } else {
+      lifeSongMode = false;
+      yearSlider.disabled = false;
+      if (activeRecording) {
+        stopRecording(false);
+      }
+      updateLifeSongControls();
+    }
+  } catch (error) {
+    stopPlayback();
+    if (activeRecording) {
+      stopRecording(false);
+    }
+    const message = error instanceof Error ? error.message : 'Audio recording could not start.';
+    errorBanner.hidden = false;
+    errorBanner.textContent = `Earth song could not start: ${message}`;
+    lifeSongState.textContent = errorBanner.textContent;
+    liveStatus.textContent = errorBanner.textContent;
+  } finally {
+    lifeSongStarting = false;
+    updateLifeSongControls();
   }
 }
 
@@ -557,6 +867,10 @@ async function hearMoment(index: number): Promise<void> {
     return;
   }
 
+  if (lifeSongMode) {
+    stopPlayback();
+    lifeSongState.textContent = 'Earth song stopped at the selected moment.';
+  }
   currentIndex = index;
   updateReadout(true);
   errorBanner.hidden = true;
@@ -585,7 +899,7 @@ function togglePlayback(): void {
 }
 
 function setCurrentYearFromSlider(): void {
-  if (!dataset) {
+  if (!dataset || lifeSongMode) {
     return;
   }
   currentIndex = Number(yearSlider.value);
@@ -607,7 +921,7 @@ function setCompareYearFromSlider(): void {
 }
 
 function setIndexFromPointer(event: PointerEvent): void {
-  if (!dataset) {
+  if (!dataset || lifeSongMode) {
     return;
   }
 
@@ -648,6 +962,7 @@ function initializeDataset(data: Dataset): void {
   rangeStart.textContent = String(data.values[0].year);
   rangeEnd.textContent = String(data.values[data.values.length - 1].year);
   sceneRecord.textContent = `${data.values.length} YEARLY OBSERVATIONS · ${data.values[0].year}–${data.values[data.values.length - 1].year}`;
+  updateLifeSongRange(data);
   visualTitle.textContent = isArctic ? 'September ice extent' : 'A stripe for every year';
   visualLegend.replaceChildren();
   visualLegend.classList.toggle('temperature-legend', !isArctic);
@@ -672,6 +987,7 @@ function initializeDataset(data: Dataset): void {
   updateDataPanel(data);
   updateMomentButtons(data);
   updateReadout(false);
+  updateLifeSongControls();
   liveStatus.textContent = `${data.metadata.title} loaded, ${data.values.length} annual observations.`;
 }
 
@@ -702,6 +1018,10 @@ sceneSelect.addEventListener('change', () => {
   compareSlider.disabled = true;
   compareToggle.disabled = true;
   playButton.disabled = true;
+  birthYearInput.disabled = true;
+  exampleYearButton.disabled = true;
+  playLifeSongButton.disabled = true;
+  saveLifeSongButton.disabled = true;
   errorBanner.hidden = true;
   liveStatus.textContent = `Loading ${sceneSelect.selectedOptions[0].textContent}…`;
   void loadScene(sceneId)
@@ -719,12 +1039,29 @@ sceneSelect.addEventListener('change', () => {
       compareSlider.disabled = !dataReady;
       compareToggle.disabled = !dataReady;
       playButton.disabled = !dataReady;
+      updateLifeSongControls();
     });
 });
 
 yearSlider.addEventListener('input', setCurrentYearFromSlider);
 compareSlider.addEventListener('input', setCompareYearFromSlider);
 playButton.addEventListener('click', togglePlayback);
+birthYearInput.addEventListener('input', () => birthYearInput.setCustomValidity(''));
+exampleYearButton.addEventListener('click', () => {
+  if (!dataset) {
+    return;
+  }
+  const exampleYear = dataset.values[Math.floor((dataset.values.length - 1) / 2)].year;
+  birthYearInput.value = String(exampleYear);
+  birthYearInput.setCustomValidity('');
+  lifeSongState.textContent = `Example birth year set to ${exampleYear}.`;
+});
+playLifeSongButton.addEventListener('click', () => {
+  void playLifeSong(false);
+});
+saveLifeSongButton.addEventListener('click', () => {
+  void playLifeSong(true);
+});
 speedSelect.addEventListener('change', () => {
   if (playing) {
     schedulePlayback();

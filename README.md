@@ -56,8 +56,12 @@ The processor checks the September/Northern Hemisphere subset, validates 48 cons
 - The temperature scene is drawn as one warming stripe per real annual anomaly. Its playhead follows the selected year.
 - Choose Slow, Normal, or Fast playback.
 - Turn on **Compare two years** to see two matched visuals side by side and hear the selected year in the left ear and the comparison year in the right.
+- Enter a birth year in **Earth song of your life** and play the selected scene continuously from that observation to its latest year. The example year comes from the active dataset; the year and value advance with the visual, and the live announcement updates every five years.
+- Choose **Save my song** to record that same run and download it when it reaches the latest year. The interface names the recording format supported by the browser (WebM/Opus in the browser used for verification). If playback is interrupted, no partial file is downloaded.
 - **Mute** is always visible. Space toggles play/pause when focus is outside an interactive control; `M` toggles mute.
 - The live status announces the selected year, value, and a plain-language sound description. The visuals support the sound; the range control and announcements expose the data without sight.
+
+The life-song controls accept only whole years present in the selected scene. Recording uses the browser's `MediaRecorder` and a stream tapped from the existing post-limiter audio; it does not request microphone access. Start and save actions remain explicit user gestures.
 
 The About panel gives a short explanation, dataset name, citation, and source links. Expand **Technical details** for processing and validation notes. The “How we used AI” and mapping buttons open the contents of the corresponding project documentation.
 
@@ -99,6 +103,7 @@ Values are normalized against each scene's observed range. Pitch follows a three
 - The Sea Ice Index changes input products in 2025, as described above and in the in-app data panel. This source transition should be considered when interpreting changes in extent.
 - The sonification is an educational representation, not a scientific visualization or a substitute for the underlying data.
 - The output has been checked in automated builds and browser playback, but a human has not yet listened and judged timbre, volume, or the 90-second demo.
+- Recording was verified in a Chromium browser: a 2024–2025 WebM/Opus file was 9,338 bytes and played through to completion; it decoded as 0.66 seconds of stereo audio at 48 kHz. Other browsers may choose a different supported format or lack MediaRecorder support.
 - There is no backend, account system, live satellite processing, or current deployment URL.
 - No project software license has been selected in this repository. Do not infer a project license from NASA data terms.
 

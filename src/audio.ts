@@ -36,6 +36,7 @@ function clampPan(pan: number): number {
 export class AudioEngine {
   private graph: AudioGraph | null = null;
   private initialization: Promise<void> | null = null;
+  private recordingDestination: MediaStreamAudioDestinationNode | null = null;
   private muted = false;
 
   async start(): Promise<void> {
@@ -101,6 +102,31 @@ export class AudioEngine {
     this.graph?.masterGain.gain.rampTo(muted ? 0 : MASTER_GAIN, 0.04);
   }
 
+  createRecordingStream(): MediaStream {
+    const graph = this.requireGraph();
+    if (this.recordingDestination) {
+      throw new Error('An audio recording stream is already active.');
+    }
+
+    const destination = graph.tone.getContext().createMediaStreamDestination();
+    graph.limiter.connect(destination);
+    this.recordingDestination = destination;
+    return destination.stream;
+  }
+
+  releaseRecordingStream(): void {
+    const destination = this.recordingDestination;
+    if (!destination) {
+      return;
+    }
+
+    this.graph?.limiter.disconnect(destination);
+    for (const track of destination.stream.getTracks()) {
+      track.stop();
+    }
+    this.recordingDestination = null;
+  }
+
   stop(): void {
     if (!this.graph) {
       return;
@@ -116,6 +142,7 @@ export class AudioEngine {
   }
 
   dispose(): void {
+    this.releaseRecordingStream();
     if (!this.graph) {
       return;
     }
